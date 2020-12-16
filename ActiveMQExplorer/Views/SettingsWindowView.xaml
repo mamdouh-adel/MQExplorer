@@ -14,5 +14,7 @@
         <Button x:Name="startListenBtn" Content="Start Listen" HorizontalAlignment="Left" Margin="655,64,0,0" VerticalAlignment="Top" Width="75" Command="{Binding StartListen}"/>
         <Button x:Name="stopListenBtn" Content="Stop Listen" HorizontalAlignment="Left" Margin="655,110,0,0" VerticalAlignment="Top" Width="75" Command="{Binding StopListen}"/>
         <TextBlock x:Name="messsagesBlock" ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.HorizontalScrollBarVisibility="Visible" ScrollViewer.CanContentScroll="True" HorizontalAlignment="Left" Margin="577,170,0,0" VerticalAlignment="Top" Width="194" Height="193" Background="AliceBlue" Text="{Binding Messages}" />
+
+        <Button x:Name="testBtn" Content="Test" HorizontalAlignment="Left" Margin="655,20,0,0" VerticalAlignment="Top" Width="75" Command="{Binding Test}" />
     </Grid>
 </Window>

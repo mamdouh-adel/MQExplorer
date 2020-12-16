@@ -10,7 +10,7 @@ namespace MQProviders.Common
         int Port { get; set; }
         string Destination { get; set; }
         string Data { get; set; }
-        string BrokerURI { get; set; }
+        string BrokerURI { get; } 
         long Messages { get; set; }
         int Size { get; set; }
     }

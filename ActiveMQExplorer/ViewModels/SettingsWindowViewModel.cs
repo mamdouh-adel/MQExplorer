@@ -139,5 +139,14 @@ namespace ActiveMQExplorer.ViewModels
             _stratRetreiveMessages = false;
             _mQListener.StopListen();
         }
+
+        public ICommand Test
+        {
+            get { return new DelegateCommand(TestAction); }
+        }
+        private void TestAction()
+        {
+            _mQPublisher.TryConnect();
+        }
     }
 }

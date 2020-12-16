@@ -14,11 +14,11 @@ namespace MQProviders.ActiveMQ
         public ActiveMQListener()
         {
             _listenerModel = new ActiveMQModel();
-            _listenerModel.BrokerURI = string.Concat("activemq:tcp://", _listenerModel.Host, ":", _listenerModel.Port, "?transport.useLogging=true");
             _connectionFactory = new NMSConnectionFactory(_listenerModel?.BrokerURI);
             
             ReadMessages = new ConcurrentQueue<string>();
         }
+
         public void StartListen()
         {
             using (IConnection connection = _connectionFactory?.CreateConnection(_listenerModel?.UserName, _listenerModel?.Password))

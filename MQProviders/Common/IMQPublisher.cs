@@ -1,9 +1,14 @@
-﻿namespace MQProviders.Common
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+
+namespace MQProviders.Common
 {
     public interface IMQPublisher
     {
-        void StartTransaction();
+        string StartTransaction();
         void SetPublisherModel(IMQModel publisherModel);
         IMQModel GetPublisherModel();
+        Task<ISet<string>> GetQueueList();
+        string TryConnect();
     }
 }
