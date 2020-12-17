@@ -6,11 +6,11 @@ namespace ActiveMQExplorer.ViewModels
 {
     internal class DelegateCommand : ICommand
     {
-        private readonly Action _targetMethod;
+        private readonly Action<object> _targetMethod;
 
-        public DelegateCommand(Action convertText)
+        public DelegateCommand(Action<object> actionMethod)
         {
-            this._targetMethod = convertText;
+            this._targetMethod = actionMethod;
         }
 
         public event EventHandler CanExecuteChanged;
@@ -22,7 +22,7 @@ namespace ActiveMQExplorer.ViewModels
 
         public void Execute(object parameter)
         {
-            Task.Factory.StartNew(() =>  _targetMethod.Invoke());
+            Task.Factory.StartNew(() =>  _targetMethod.Invoke(parameter));
         }
     }
 }

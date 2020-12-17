@@ -89,7 +89,7 @@ namespace ActiveMQExplorer.ViewModels
             get { return new DelegateCommand(SendMessageToMQ); }
         }
 
-        private void SendMessageToMQ()
+        private void SendMessageToMQ(object sender)
         {
             _mQPubModule.Destination = MQDestination;
             _mQPubModule.Data = MQData;
@@ -119,7 +119,7 @@ namespace ActiveMQExplorer.ViewModels
             }
         }
 
-        private void StartListenToMQ()
+        private void StartListenToMQ(object sender)
         {
             Task.Factory.StartNew(() => RetrieveMessagesFromMQ());
 
@@ -134,7 +134,7 @@ namespace ActiveMQExplorer.ViewModels
             get { return new DelegateCommand(StopListenToMQ); }
         }
 
-        private void StopListenToMQ()
+        private void StopListenToMQ(object sender)
         {
             _stratRetreiveMessages = false;
             _mQListener.StopListen();
@@ -144,7 +144,7 @@ namespace ActiveMQExplorer.ViewModels
         {
             get { return new DelegateCommand(TestAction); }
         }
-        private void TestAction()
+        private void TestAction(object sender)
         {
             _mQPublisher.TryConnect();
         }

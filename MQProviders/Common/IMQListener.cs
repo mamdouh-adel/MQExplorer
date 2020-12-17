@@ -4,7 +4,7 @@ namespace MQProviders.Common
 {
     public interface IMQListener
     {
-        void StartListen();
+        string StartListen();
         void StopListen();
         void SetListenerModel(IMQModel ListenerModel);
         IMQModel GetListenerModel();

@@ -24,7 +24,7 @@
             <TabItem Header="Publisher">
                 <Grid Background="#f7fafe">
                     <Label Name="pqueue" Content="Queue" HorizontalAlignment="Left" Height="24" Margin="270,10,0,0" VerticalAlignment="Top" Width="100"/>
-                    <ComboBox x:Name="pququeList" IsEditable="True" HorizontalAlignment="Left" Height="24" Margin="322,10,0,0" VerticalAlignment="Top" Width="100" SelectedValue="{Binding QueueValue}" ItemsSource="{Binding Queues}" />
+                    <ComboBox x:Name="pququeList" IsEditable="True" HorizontalAlignment="Left" Height="24" Margin="322,10,0,0" VerticalAlignment="Top" Width="160" Text="{Binding QueueText}" ItemsSource="{Binding Queues}" />
                     <TextBox x:Name="mqDataBox" HorizontalAlignment="Left" Height="300" Margin="65,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="640" AcceptsReturn="True" VerticalScrollBarVisibility="Visible" Text="{Binding MQData}"/>
                     <Button x:Name="sendBtn" Content="Send" HorizontalAlignment="Left" Margin="347,420,0,0" VerticalAlignment="Top" Width="75" Command="{Binding Send}"/>
                     <Label x:Name="status" Content="{Binding SendStatus}" HorizontalAlignment="Left" Margin="120,470,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.456,-0.342" />
@@ -32,8 +32,12 @@
             </TabItem>
             <TabItem Header="Listener">
                 <Grid Background="#f3f8fe">
+                    <StackPanel>
+                        <ToggleButton x:Name="tb" Content="{Binding ListenText}" Command="{Binding ListenHandler}" CommandParameter="{Binding IsChecked,RelativeSource={RelativeSource Self}}" Margin="12" Width="108" HorizontalAlignment="Right" />
+                    </StackPanel>
                     <Label Name="squeue" Content="Queue" HorizontalAlignment="Left" Height="24" Margin="270,10,0,0" VerticalAlignment="Top" Width="100"/>
-                    <ComboBox x:Name="sququeList" HorizontalAlignment="Left" Height="24" Margin="322,10,0,0" VerticalAlignment="Top" Width="100" ItemsSource="{Binding Queues}" />
+                    <ComboBox x:Name="sququeList" HorizontalAlignment="Left" Height="24" Margin="322,10,0,0" VerticalAlignment="Top" Width="160" Text="{Binding QueueText}" ItemsSource="{Binding Queues}" />
+                    <DataGrid x:Name="dataGrid" HorizontalAlignment="Left" Height="400" Margin="65,82,0,0" VerticalAlignment="Top" Width="640" VerticalScrollBarVisibility="Visible"/>
                 </Grid>
 
             </TabItem>

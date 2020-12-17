@@ -1,5 +1,6 @@
 ﻿using Apache.NMS;
 using MQProviders.Common;
+using System;
 using System.Collections.Concurrent;
 using System.Threading;
 
@@ -19,23 +20,32 @@ namespace MQProviders.ActiveMQ
             ReadMessages = new ConcurrentQueue<string>();
         }
 
-        public void StartListen()
+        public string StartListen()
         {
-            using (IConnection connection = _connectionFactory?.CreateConnection(_listenerModel?.UserName, _listenerModel?.Password))
+            try
             {
-                connection?.Start();
-                
-                using(ISession session = connection?.CreateSession(AcknowledgementMode.AutoAcknowledge))
+                using (IConnection connection = _connectionFactory.CreateConnection(_listenerModel.UserName, _listenerModel.Password))
                 {
-                    using(IDestination dest = session?.GetQueue(_listenerModel?.Destination))
+                    connection.Start();
+
+                    using (ISession session = connection.CreateSession(AcknowledgementMode.AutoAcknowledge))
                     {
-                        using(IMessageConsumer consumer = session?.CreateConsumer(dest))
+                        using (IDestination dest = session.GetQueue(_listenerModel.Destination))
                         {
-                            ListenSession(consumer);
+                            using (IMessageConsumer consumer = session.CreateConsumer(dest))
+                            {
+                                ListenSession(consumer);
+                            }
                         }
                     }
                 }
-            }          
+            }
+            catch (Exception ex)
+            {
+                return "Failed to send: " + ex.Message;
+            }
+
+            return "Success";          
         }
 
         private void ListenSession(IMessageConsumer consumer)
