@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
         Title="MQ Explorer" Height="600" Width="800">
@@ -36,8 +37,22 @@
                         <ToggleButton x:Name="tb" Content="{Binding ListenText}" Command="{Binding ListenHandler}" CommandParameter="{Binding IsChecked,RelativeSource={RelativeSource Self}}" Margin="12" Width="108" HorizontalAlignment="Right" />
                     </StackPanel>
                     <Label Name="squeue" Content="Queue" HorizontalAlignment="Left" Height="24" Margin="270,10,0,0" VerticalAlignment="Top" Width="100"/>
-                    <ComboBox x:Name="sququeList" HorizontalAlignment="Left" Height="24" Margin="322,10,0,0" VerticalAlignment="Top" Width="160" Text="{Binding QueueText}" ItemsSource="{Binding Queues}" />
-                    <DataGrid x:Name="dataGrid" HorizontalAlignment="Left" Height="400" Margin="65,82,0,0" VerticalAlignment="Top" Width="640" VerticalScrollBarVisibility="Visible"/>
+                    <ComboBox x:Name="sququeList" HorizontalAlignment="Left" Height="24" Margin="322,10,0,0" VerticalAlignment="Top" Width="160" Text="{Binding QueueText}" ItemsSource="{Binding Queues}" IsEnabled="{Binding IsListenerAvailable}" >
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="SelectionChanged">
+                                <i:InvokeCommandAction Command="{Binding OnQueueSelectedChanged}"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </ComboBox>
+                    <DataGrid x:Name="dataGrid" HorizontalAlignment="Left" Height="400" Margin="65,82,0,0" VerticalAlignment="Top" Width="640" VerticalScrollBarVisibility="Visible" Background="LightGray" RowBackground="#EAF4FE" BorderThickness="1" AlternatingRowBackground="White" ItemsSource="{Binding MessagesDataList, Mode=TwoWay}" SelectedItem="{Binding SelectedMessageData}" AutoGenerateColumns="False" IsReadOnly="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding Id, UpdateSourceTrigger=PropertyChanged}"/>
+                            <DataGridTextColumn Header="Message" Width="590" Binding="{Binding BriefData, UpdateSourceTrigger=PropertyChanged}" />
+                        </DataGrid.Columns>
+                        <DataGrid.InputBindings>
+                            <MouseBinding Gesture="LeftDoubleClick" Command="{Binding MessageDataRowClicked}"/>
+                        </DataGrid.InputBindings>
+                    </DataGrid>
                 </Grid>
 
             </TabItem>

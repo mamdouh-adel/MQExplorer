@@ -88,7 +88,7 @@ namespace MQProviders.ActiveMQ
                     }
                 }
             }
-            catch(Exception ex)
+            catch
             {
 
             }
@@ -102,11 +102,13 @@ namespace MQProviders.ActiveMQ
             {
                 using (IConnection connection = _connectionFactory.CreateConnection(_publisherModel.UserName, _publisherModel.Password))
                 {
-                    connection.Start();
+                  //  var test = connection.
 
                     using (ISession session = connection.CreateSession(AcknowledgementMode.AutoAcknowledge))
                     {
                         IDestination dest = session.GetQueue(_publisherModel.Destination);
+
+                        IMessageProducer messageProducer = session.CreateProducer(dest);
                     }
                 }
             } 

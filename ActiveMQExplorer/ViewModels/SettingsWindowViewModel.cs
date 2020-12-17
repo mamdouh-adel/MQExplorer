@@ -1,65 +1,82 @@
 ﻿using Caliburn.Micro;
 using MQProviders.Common;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Input;
-using System.Windows.Threading;
+
 
 namespace ActiveMQExplorer.ViewModels
 {
     public class SettingsWindowViewModel : Conductor<Screen>.Collection.AllActive
     {
-        private IMQModel _mQPubModule;
+        private IMQModel _mQPubModel;
         private IMQPublisher _mQPublisher;
         private IMQModel _mQLisenModel;
-        private IMQListener _mQListener;
 
-        private volatile bool _stratRetreiveMessages;
-
-        private StringBuilder _messagesBuilder = new StringBuilder();
-
-        private string _testText = "Test Text...";
-        public string TestText
+        private bool _isReadyToTryConnect;
+        public bool IsReadyToTryConnect
         {
-            get => _testText;
+            get => _isReadyToTryConnect;
             set
             {
-                _testText = value;
+                _isReadyToTryConnect = value;
                 NotifyOfPropertyChange();
             }
         }
 
-        private string _mQDestination;
-        public string MQDestination
+        private string _host;
+        public string Host
         {
-            get => _mQDestination;
+            get => _host;
             set
             {
-                _mQDestination = value;
+                _host = value;
+                IsReadyToTryConnect = CheckConnectionParameters();
                 NotifyOfPropertyChange();
             }
         }
 
-        private string _mQData;
-        public string MQData
+        private int _port;
+        public int Port
         {
-            get => _mQData;
+            get => _port;
             set
             {
-                _mQData = value;
+                _port = value;
+                IsReadyToTryConnect = CheckConnectionParameters();
                 NotifyOfPropertyChange();
             }
         }
 
-        private string _messages;
-        public string Messages
+        private string _userName;
+        public string UserName
         {
-            get => _messages;
+            get => _userName;
             set
             {
-                _messages = value;
+                _userName = value;
+                IsReadyToTryConnect = CheckConnectionParameters();
+                NotifyOfPropertyChange();
+            }
+        }
+
+        private string _password;
+        public string Password
+        {
+            get => _password;
+            set
+            {
+                _password = value;
+                IsReadyToTryConnect = CheckConnectionParameters();
+                NotifyOfPropertyChange();
+            }
+        }
+
+        private string _connectStatus;
+        public string ConnectStatus
+        {
+            get => _connectStatus;
+            set
+            {
+                _connectStatus = value;
                 NotifyOfPropertyChange();
             }
         }
@@ -75,78 +92,58 @@ namespace ActiveMQExplorer.ViewModels
                 activator.Activate();
         }
 
-        public SettingsWindowViewModel(IMQModel mQModel, IMQPublisher mQPublisher, IMQListener mQListener)
+        public SettingsWindowViewModel(IMQModel mQModel, IMQPublisher mQPublisher)
             : this()
         {
-            _mQPubModule = mQModel;
+            _mQPubModel = mQModel;
             _mQLisenModel = mQModel;
             _mQPublisher = mQPublisher;
-            _mQListener = mQListener;
         }
 
-        public ICommand Send
+        public ICommand Connect
         {
-            get { return new DelegateCommand(SendMessageToMQ); }
+            get { return new DelegateCommand(TryConnect); }
         }
 
-        private void SendMessageToMQ(object sender)
+        private void TryConnect(object sender)
         {
-            _mQPubModule.Destination = MQDestination;
-            _mQPubModule.Data = MQData;
+            _mQLisenModel.Host = Host;
+            _mQLisenModel.Port = Port;
+            _mQLisenModel.UserName = UserName;
+            _mQLisenModel.Password = Password;
+            _mQLisenModel.Destination = "MTS";
 
-            _mQPublisher.SetPublisherModel(_mQPubModule);
-            _mQPublisher.StartTransaction();
+            _mQPubModel.Host = Host;
+            _mQPubModel.Port = Port;
+            _mQPubModel.UserName = UserName;
+            _mQPubModel.Password = Password;
+            _mQPubModel.Destination = "MTS";
+
+            _mQPublisher.SetPublisherModel(_mQPubModel);       
+            string result = _mQPublisher.TryConnect();
+
+            ConnectStatus = result;
+            //if(result != "Success")
+            //{
+
+            //}
         }
 
-        public ICommand StartListen
+        private bool CheckConnectionParameters()
         {
-            get { return new DelegateCommand(StartListenToMQ); }
-        }
+            if (string.IsNullOrWhiteSpace(Host))
+                return false;
 
-        private void RetrieveMessagesFromMQ()
-        {
-            _stratRetreiveMessages = true;
-            while (_stratRetreiveMessages)
-            {
-                bool haveMessages = _mQListener.ReadMessages.TryDequeue(out string message);
-                if (haveMessages)
-                {
-                    _messagesBuilder.AppendLine().Append(message);
-                    Messages = _messagesBuilder.ToString();
-                }
+            if (Port <= 0)
+                return false;
 
-                Thread.Sleep(1000);
-            }
-        }
+            if (string.IsNullOrWhiteSpace(UserName))
+                return false;
 
-        private void StartListenToMQ(object sender)
-        {
-            Task.Factory.StartNew(() => RetrieveMessagesFromMQ());
+            if (string.IsNullOrWhiteSpace(Password))
+                return false;
 
-            _mQLisenModel.Destination = MQDestination;
-
-            _mQListener.SetListenerModel(_mQLisenModel);
-            _mQListener.StartListen();
-        }
-
-        public ICommand StopListen
-        {
-            get { return new DelegateCommand(StopListenToMQ); }
-        }
-
-        private void StopListenToMQ(object sender)
-        {
-            _stratRetreiveMessages = false;
-            _mQListener.StopListen();
-        }
-
-        public ICommand Test
-        {
-            get { return new DelegateCommand(TestAction); }
-        }
-        private void TestAction(object sender)
-        {
-            _mQPublisher.TryConnect();
+            return true;
         }
     }
 }

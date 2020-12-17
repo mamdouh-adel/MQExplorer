@@ -1,4 +1,5 @@
-﻿using Caliburn.Micro;
+﻿using ActiveMQExplorer.Views;
+using Caliburn.Micro;
 using MQProviders.Common;
 using System.Collections.Generic;
 using System.Text;
@@ -19,9 +20,9 @@ namespace ActiveMQExplorer.ViewModels
         private IMQListener _mQListener;
 
         private volatile bool _stratRetreiveMessages;
-        private StringBuilder _messagesBuilder = new StringBuilder();
 
         private bool _isListenerRun;
+        private string _currentQueue;
 
         public MainWindowViewModel()
         {
@@ -37,8 +38,11 @@ namespace ActiveMQExplorer.ViewModels
             _mQLisenModel = mQModel;
             _mQPublisher = mQPublisher;
             _mQListener = mQListener;
+            IsListenerAvailable = true;
 
-            Task.Factory.StartNew(() => SetQueueListBox());   
+            MessagesDataList = new List<MessageData>();
+
+            Task.Factory.StartNew(() => SetQueueListBox());
         }
 
         private void SetQueueListBox()
@@ -89,6 +93,18 @@ namespace ActiveMQExplorer.ViewModels
                 NotifyOfPropertyChange();
             }
         }
+
+        private bool _isListenerAvailable;
+        public bool IsListenerAvailable
+        {
+            get => _isListenerAvailable;
+            set
+            {
+                _isListenerAvailable = value;
+                NotifyOfPropertyChange();
+            }
+        }
+        
 
         private string _queueText;
         public string QueueText
@@ -154,6 +170,17 @@ namespace ActiveMQExplorer.ViewModels
             }
         }
 
+        private List<MessageData> _messagesDataList;
+        public List<MessageData> MessagesDataList
+        {
+            get => _messagesDataList;
+            set
+            {
+                _messagesDataList = value;
+                NotifyOfPropertyChange();
+            }
+        }
+
         private string _listenText = "Start Listening";
         public string ListenText
         {
@@ -165,6 +192,18 @@ namespace ActiveMQExplorer.ViewModels
                 else
                     _listenText = "Start Listening";
 
+                NotifyOfPropertyChange();
+            }
+        }
+
+
+        private MessageData _selectedMessageData;
+        public MessageData SelectedMessageData
+        {
+            get => _selectedMessageData;
+            set
+            {
+                _selectedMessageData = value;
                 NotifyOfPropertyChange();
             }
         }
@@ -181,24 +220,58 @@ namespace ActiveMQExplorer.ViewModels
             {
                 bool haveMessages = _mQListener.ReadMessages.TryDequeue(out string message);
                 if (haveMessages)
-                {
-                    _messagesBuilder.AppendLine().Append(message);
-                    Messages = _messagesBuilder.ToString();
+                {                   
+                    Application.Current.Dispatcher.Invoke(DispatcherPriority.DataBind, new ThreadStart(delegate
+                    {
+                        List<MessageData> newMessageDataList = new List<MessageData>(MessagesDataList)
+                        {
+                            new MessageData { Data = message }
+                        };
+
+                        MessagesDataList = newMessageDataList;
+                    }));
                 }
 
-                Thread.Sleep(1000);
+                Thread.Sleep(100);
             }
+        }
+
+        public ICommand MessageDataRowClicked
+        {
+            get { return new DelegateCommand(MessageDataRowClickedAction); }
+        }
+
+        private void MessageDataRowClickedAction(object sender)
+        {
+            Application.Current.Dispatcher.Invoke(DispatcherPriority.DataBind, new ThreadStart(delegate
+            {
+                MessagePresenter.Show(SelectedMessageData.Data);
+            }));
+        }
+
+        public ICommand OnQueueSelectedChanged
+        {
+            get { return new DelegateCommand(OnQueueSelectedChangedAction); }
+        }
+
+        private void OnQueueSelectedChangedAction(object sender)
+        {
+            if (_currentQueue != QueueText)
+                MessagesDataList = new List<MessageData>();
+
+            _currentQueue = QueueText;
         }
 
         private void HandleListenToMQ(object isListenerChecked)
         {
-            Task.Factory.StartNew(() => {
-                _isListenerRun = true;
-                ListenText = "Try to Start";
-            });
-
             if ((bool)isListenerChecked)
             {
+                Task.Factory.StartNew(() => {
+                    _isListenerRun = true;
+                    IsListenerAvailable = !_isListenerRun;
+                    ListenText = "Try to Start";
+                });
+
                 Task.Factory.StartNew(() => RetrieveMessagesFromMQ());
 
                 _mQLisenModel.Destination = MQDestination;
@@ -209,6 +282,7 @@ namespace ActiveMQExplorer.ViewModels
                 if(result != "Success")
                 {
                     _isListenerRun = false;
+                    IsListenerAvailable = !_isListenerRun;
                     ListenText = "Fail";
                     MessageBox.Show(result, "Error", MessageBoxButton.OK, MessageBoxImage.Exclamation, MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
                     return;
@@ -217,6 +291,8 @@ namespace ActiveMQExplorer.ViewModels
             else
             {
                 _stratRetreiveMessages = false;
+                _isListenerRun = false;
+                IsListenerAvailable = !_isListenerRun;
                 _mQListener.StopListen();
 
                 _isListenerRun = false;

@@ -4,17 +4,21 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
+        xmlns:ff="clr-namespace:FunctionalFun.UI"
         WindowStartupLocation="CenterScreen"
-        Title="Settings" Height="450" Width="800">
-    <Grid>
-        <Label x:Name="label"  Content="{Binding TestText}" />
-        <TextBox x:Name="messageBox" HorizontalAlignment="Left" Height="23" Margin="373,193,0,0" TextWrapping="Wrap" Text="{Binding MQData}" VerticalAlignment="Top" Width="120"/>
-        <Button x:Name="sendBtn" Content="Send" HorizontalAlignment="Left" Margin="390,239,0,0" VerticalAlignment="Top" Width="75" RenderTransformOrigin="1.592,0.498" Command="{Binding Send}"/>
-        <TextBox x:Name="destBox" HorizontalAlignment="Left" Height="23" Margin="170,180,0,0" TextWrapping="Wrap" Text="{Binding MQDestination}" VerticalAlignment="Top" Width="120"/>
-        <Button x:Name="startListenBtn" Content="Start Listen" HorizontalAlignment="Left" Margin="655,64,0,0" VerticalAlignment="Top" Width="75" Command="{Binding StartListen}"/>
-        <Button x:Name="stopListenBtn" Content="Stop Listen" HorizontalAlignment="Left" Margin="655,110,0,0" VerticalAlignment="Top" Width="75" Command="{Binding StopListen}"/>
-        <TextBlock x:Name="messsagesBlock" ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.HorizontalScrollBarVisibility="Visible" ScrollViewer.CanContentScroll="True" HorizontalAlignment="Left" Margin="577,170,0,0" VerticalAlignment="Top" Width="194" Height="193" Background="AliceBlue" Text="{Binding Messages}" />
+        ResizeMode="CanMinimize"
+        Title="Settings" Height="400" Width="600">
+    <Grid RenderTransformOrigin="0.499,0.558">
+        <Label Content="Host" HorizontalAlignment="Left" Margin="126,25,0,0" VerticalAlignment="Top" FontStretch="UltraExpanded" FontWeight="Bold"/>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="198,28,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="184" ToolTip="Enter MQ Host Name or IP" FontStretch="UltraExpanded" FontWeight="Bold" Foreground="#566573" Text="{Binding Host}"/>
+        <Label Content="User Name" HorizontalAlignment="Left" Margin="126,79,0,0" VerticalAlignment="Top" FontStretch="UltraExpanded" FontWeight="Bold"/>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="198,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="184" ToolTip="Enter MQ User Name" FontStretch="UltraExpanded" FontWeight="Bold" Foreground="#566573" Text="{Binding UserName}"/>
+        <Label Content="Password" HorizontalAlignment="Left" Margin="126,132,0,0" VerticalAlignment="Top" FontStretch="UltraExpanded" FontWeight="Bold"/>
+        <PasswordBox x:Name="PasswordBox" ff:PasswordBoxAssistant.BindPassword="true" ff:PasswordBoxAssistant.BoundPassword="{Binding Path=Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Height="23" Margin="198,135,0,0" VerticalAlignment="Top" Width="184" ToolTip="Enter MQ Password" FontStretch="UltraExpanded" FontWeight="Bold" Foreground="#566573" />
+        <Label Content="Port" HorizontalAlignment="Left" Margin="385,24,0,0" VerticalAlignment="Top" FontStretch="UltraExpanded" FontWeight="Bold" Width="35" RenderTransformOrigin="-1.176,0.646"/>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="425,27,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="74" ToolTip="Enter MQ Host Port" FontStretch="UltraExpanded" FontWeight="Bold" Foreground="#566573" Text="{Binding Port}"/>
+        <Button Content="Connect" HorizontalAlignment="Left" Margin="245,202,0,0" VerticalAlignment="Top" Width="96" FontStretch="UltraExpanded" FontWeight="Bold" Foreground="#A93226" Command="{Binding Connect}" IsEnabled="{Binding IsReadyToTryConnect}"/>
+        <Label Content="{Binding ConnectStatus}" HorizontalAlignment="Left" Margin="126,262,0,0" VerticalAlignment="Top" FontWeight="Medium" Foreground="#148F77" />
 
-        <Button x:Name="testBtn" Content="Test" HorizontalAlignment="Left" Margin="655,20,0,0" VerticalAlignment="Top" Width="75" Command="{Binding Test}" />
     </Grid>
 </Window>

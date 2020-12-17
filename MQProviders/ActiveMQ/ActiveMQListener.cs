@@ -61,7 +61,7 @@ namespace MQProviders.ActiveMQ
 
                 ++_listenerModel.Messages;
 
-                Thread.Sleep(1000);
+                Thread.Sleep(100);
             }
         }
 
