@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Threading;
 
 namespace ActiveMQExplorer.ViewModels
@@ -23,7 +24,7 @@ namespace ActiveMQExplorer.ViewModels
 
         public MainWindowViewModel()
         {
-
+            Queues = new HashSet<string>();
         }
 
         public MainWindowViewModel(SettingsWindowViewModel settingsWindowViewModel, IMQPublisher mQPublisher, IMQListener mQListener)
@@ -39,6 +40,19 @@ namespace ActiveMQExplorer.ViewModels
             IsListenerAvailable = true;
 
             MessagesDataList = new List<MessageData>();
+
+            MQModelsHandler.CurrentPublisherMQModel.Host = Properties.Settings.Default.host;
+            MQModelsHandler.CurrentPublisherMQModel.Port = Properties.Settings.Default.port;
+            MQModelsHandler.CurrentPublisherMQModel.UserName = Properties.Settings.Default.user_name;
+            MQModelsHandler.CurrentPublisherMQModel.Password = Properties.Settings.Default.password;
+
+            MQModelsHandler.CurrentListenerMQModel.Host = Properties.Settings.Default.host;
+            MQModelsHandler.CurrentListenerMQModel.Port = Properties.Settings.Default.port;
+            MQModelsHandler.CurrentListenerMQModel.UserName = Properties.Settings.Default.user_name;
+            MQModelsHandler.CurrentListenerMQModel.Password = Properties.Settings.Default.password;
+
+            _mQPublisher.SetPublisherModel(MQModelsHandler.CurrentPublisherMQModel);
+            _mQListener.SetListenerModel(MQModelsHandler.CurrentListenerMQModel);
 
             Task.Factory.StartNew(() => SetQueueListBox());
         }
@@ -66,6 +80,7 @@ namespace ActiveMQExplorer.ViewModels
             set
             {
                 _mQData = value;
+                SendStatus = string.Empty;
                 NotifyOfPropertyChange();
             }
         }
@@ -139,8 +154,9 @@ namespace ActiveMQExplorer.ViewModels
 
             _mQPublisher.SetPublisherModel(MQModelsHandler.CurrentPublisherMQModel);
             string result = _mQPublisher.StartTransaction();
-            if(result == "Success")
+            if (result == "Success")
             {
+
                 if (Queues.Contains(MQDestination) == false)
                 {
                     Application.Current.Dispatcher.Invoke(DispatcherPriority.DataBind, new ThreadStart(delegate
@@ -150,12 +166,31 @@ namespace ActiveMQExplorer.ViewModels
                 }
 
                 MQData = string.Empty;
+                SendStatusColor = Brushes.Green;
             }
+            else
+                SendStatusColor = Brushes.Red;
 
             SendStatus = result;
+
+            Task.Factory.StartNew(() =>
+            {
+                Thread.Sleep(5000);
+                SendStatus = string.Empty;
+            });
         }
 
         #region Listener Part
+        private Brush _sendStatusColor;
+        public Brush SendStatusColor
+        {
+            get => _sendStatusColor;
+            set
+            {
+                _sendStatusColor = value;
+                NotifyOfPropertyChange();
+            }
+        }
 
         private string _messages;
         public string Messages

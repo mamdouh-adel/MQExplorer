@@ -24,7 +24,7 @@
                     <Label Content="{Binding ConnectStatus}" HorizontalAlignment="Left" Margin="126,262,0,0" VerticalAlignment="Top" FontWeight="Medium" Foreground="{Binding ConnectStatusColor}" />
                 </Grid>
             </TabItem>
-            <TabItem Header="Listener Setting">
+         <!--   <TabItem Header="Listener Setting">
                 <Grid Background="#f3f8fe">
                     <Label Content="Host" HorizontalAlignment="Left" Margin="126,25,0,0" VerticalAlignment="Top" FontStretch="UltraExpanded" FontWeight="Bold"/>
                     <TextBox HorizontalAlignment="Left" Height="23" Margin="198,28,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="184" ToolTip="Enter MQ Host Name or IP" FontStretch="UltraExpanded" FontWeight="Bold" Foreground="#566573" Text="{Binding Host}"/>
@@ -37,7 +37,7 @@
                     <Button Content="Connect" HorizontalAlignment="Left" Margin="245,202,0,0" VerticalAlignment="Top" Width="96" FontStretch="UltraExpanded" FontWeight="Bold" Foreground="#A93226" Command="{Binding ListenerConnect}" IsEnabled="{Binding IsReadyToTryConnect}"/>
                     <Label Content="{Binding ConnectStatus}" HorizontalAlignment="Left" Margin="126,262,0,0" VerticalAlignment="Top" FontWeight="Medium" Foreground="{Binding ConnectStatusColor}" />
                 </Grid>
-            </TabItem>
+            </TabItem>-->
         </TabControl>
 
     </Grid>

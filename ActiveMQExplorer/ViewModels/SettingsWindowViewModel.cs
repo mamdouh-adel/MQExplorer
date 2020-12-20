@@ -111,6 +111,11 @@ namespace ActiveMQExplorer.ViewModels
             _mQPubModel = MQModelsHandler.CurrentPublisherMQModel;
             _mQPublisher = mQPublisher;
             _mQListener = mQListener;
+
+            Host = Properties.Settings.Default.host;
+            Port = Properties.Settings.Default.port;
+            UserName = Properties.Settings.Default.user_name;
+            Password = Properties.Settings.Default.password;
         }
 
         public ICommand Connect
@@ -128,14 +133,34 @@ namespace ActiveMQExplorer.ViewModels
                 Port = Port
             };
 
-            _mQPublisher.SetPublisherModel(testPublisherModel);    
+            _mQPublisher.SetPublisherModel(testPublisherModel);
+
+            ListenerMQModel testListenerMQModel = new ListenerMQModel
+            {
+                UserName = UserName,
+                Password = Password,
+                Host = Host,
+                Port = Port
+            };
+
+            _mQListener.SetListenerModel(testListenerMQModel);
             
             string result = _mQPublisher.TryConnect();
             if (result == "Success")
             {
                 ConnectStatusColor = Brushes.Green;
+
                 MQModelsHandler.CurrentPublisherMQModel = testPublisherModel;
-                ScreensManager.MainWindowModel.Queues = _mQPublisher.GetQueueList().Result;
+                MQModelsHandler.CurrentListenerMQModel = testListenerMQModel;
+                ScreensManager.MainWindowModel.Queues = _mQListener.GetQueueList().Result;
+
+                Properties.Settings.Default.host = MQModelsHandler.CurrentPublisherMQModel.Host;
+                Properties.Settings.Default.port = MQModelsHandler.CurrentPublisherMQModel.Port;
+                Properties.Settings.Default.user_name = MQModelsHandler.CurrentPublisherMQModel.UserName;
+                Properties.Settings.Default.password = MQModelsHandler.CurrentPublisherMQModel.Password;
+
+                Properties.Settings.Default.Save();
+                Properties.Settings.Default.Reload();
             }             
             else
                 ConnectStatusColor = Brushes.Red;
@@ -165,6 +190,15 @@ namespace ActiveMQExplorer.ViewModels
             {
                 ConnectStatusColor = Brushes.Green;
                 MQModelsHandler.CurrentListenerMQModel = testListenerMQModel;
+                ScreensManager.MainWindowModel.Queues = _mQListener.GetQueueList().Result;
+
+                Properties.Settings.Default.host = MQModelsHandler.CurrentListenerMQModel.Host;
+                Properties.Settings.Default.port = MQModelsHandler.CurrentListenerMQModel.Port;
+                Properties.Settings.Default.user_name = MQModelsHandler.CurrentListenerMQModel.UserName;
+                Properties.Settings.Default.password = MQModelsHandler.CurrentListenerMQModel.Password;
+
+                Properties.Settings.Default.Save();
+                Properties.Settings.Default.Reload();
             }
             else
                 ConnectStatusColor = Brushes.Red;
