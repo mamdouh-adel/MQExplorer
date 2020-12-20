@@ -10,7 +10,7 @@
     <DockPanel>
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="_File">
-                <MenuItem Header="_Exit" />
+                <MenuItem Header="_Exit" IsCheckable="True" Click="AppExit"/>
             </MenuItem>
             <MenuItem Header="_Tools">
                 <MenuItem IsCheckable="true" Header="_Settings" Click="GoToSettings" >
@@ -54,7 +54,6 @@
                         </DataGrid.InputBindings>
                     </DataGrid>
                 </Grid>
-
             </TabItem>
         </TabControl>
     </DockPanel>

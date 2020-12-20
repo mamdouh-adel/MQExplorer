@@ -9,7 +9,7 @@ namespace ActiveMQExplorer.ViewModels
     public class SettingsWindowViewModel : Conductor<Screen>.Collection.AllActive
     {
         private PublisherMQModel _mQPubModel;
-        private ListenerMQModel _mQLisenModel;
+    //    private ListenerMQModel _mQLisenModel;
         private IMQPublisher _mQPublisher;
         private IMQListener _mQListener;
 
@@ -208,17 +208,17 @@ namespace ActiveMQExplorer.ViewModels
 
         private bool CheckConnectionParameters()
         {
-            if (string.IsNullOrWhiteSpace(Host))
-                return false;
+            //if (string.IsNullOrWhiteSpace(Host))
+            //    return false;
 
-            if (Port <= 0)
-                return false;
+            //if (Port <= 0)
+            //    return false;
 
-            if (string.IsNullOrWhiteSpace(UserName))
-                return false;
+            //if (string.IsNullOrWhiteSpace(UserName))
+            //    return false;
 
-            if (string.IsNullOrWhiteSpace(Password))
-                return false;
+            //if (string.IsNullOrWhiteSpace(Password))
+            //    return false;
 
             return true;
         }

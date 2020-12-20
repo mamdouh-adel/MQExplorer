@@ -41,5 +41,10 @@ namespace ActiveMQExplorer.Views
 
             Application.Current.Shutdown();
         }
+
+        private void AppExit(object sender, RoutedEventArgs e)
+        {
+            Application.Current.Shutdown();
+        }
     }
 }
