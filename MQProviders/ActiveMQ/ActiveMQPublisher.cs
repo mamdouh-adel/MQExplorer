@@ -12,18 +12,19 @@ namespace MQProviders.ActiveMQ
     public class ActiveMQPublisher : IMQPublisher
     {
         private IMQModel _publisherModel;
-        private readonly IConnectionFactory _connectionFactory;
+        private IConnectionFactory _connectionFactory;
 
         public ActiveMQPublisher()
         {
-            _publisherModel = new ActiveMQModel();
-            _connectionFactory = new NMSConnectionFactory(_publisherModel?.BrokerURI);
+            _publisherModel = new PublisherMQModel();
         }
 
         public string StartTransaction()
         {
             try
             {
+                _connectionFactory = new NMSConnectionFactory(_publisherModel?.BrokerURI);
+
                 using (IConnection connection = _connectionFactory.CreateConnection(_publisherModel.UserName, _publisherModel.Password))
                 {
                     connection.Start();
@@ -80,7 +81,7 @@ namespace MQProviders.ActiveMQ
                     const string pattern1 = @"^.*destinationName=";
                     const string pattern2 = @",destinationType=.*";
 
-                    for (int i=2; i<resultArr2.Length; i++)
+                    for (int i=1; i<resultArr2.Length; i++)
                     {
                         string queueTempName = Regex.Replace(resultArr2[i], pattern1, string.Empty);
                         string queueName = Regex.Replace(queueTempName, pattern2, string.Empty);
@@ -88,7 +89,7 @@ namespace MQProviders.ActiveMQ
                     }
                 }
             }
-            catch
+            catch(Exception ex)
             {
 
             }
@@ -100,15 +101,13 @@ namespace MQProviders.ActiveMQ
         {
             try 
             {
+                _connectionFactory = new NMSConnectionFactory(_publisherModel?.BrokerURI);
+
                 using (IConnection connection = _connectionFactory.CreateConnection(_publisherModel.UserName, _publisherModel.Password))
                 {
-                  //  var test = connection.
-
                     using (ISession session = connection.CreateSession(AcknowledgementMode.AutoAcknowledge))
                     {
-                        IDestination dest = session.GetQueue(_publisherModel.Destination);
 
-                        IMessageProducer messageProducer = session.CreateProducer(dest);
                     }
                 }
             } 

@@ -2,6 +2,7 @@
 using ActiveMQExplorer.Views;
 using Autofac;
 using Caliburn.Micro;
+using MQProviders.ActiveMQ;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -39,6 +40,12 @@ namespace ActiveMQExplorer
 
             ScreensManager.MainWindow = _container.Resolve<MainWindowView>();
             ScreensManager.SettingsWindow = _container.Resolve<SettingsWindowView>();
+
+      //      ScreensManager.SettingsWindowModel = _container.Resolve<SettingsWindowViewModel>();
+       //     ScreensManager.MainWindowModel = _container.Resolve<MainWindowViewModel>();
+
+            MQModelsHandler.CurrentPublisherMQModel = _container.Resolve<PublisherMQModel>();
+            MQModelsHandler.CurrentListenerMQModel = _container.Resolve<ListenerMQModel>();
         }
 
         private void RegisterTypes(ContainerBuilder builder)

@@ -1,15 +1,17 @@
 ﻿using Caliburn.Micro;
+using MQProviders.ActiveMQ;
 using MQProviders.Common;
 using System.Windows.Input;
-
+using System.Windows.Media;
 
 namespace ActiveMQExplorer.ViewModels
 {
     public class SettingsWindowViewModel : Conductor<Screen>.Collection.AllActive
     {
-        private IMQModel _mQPubModel;
+        private PublisherMQModel _mQPubModel;
+        private ListenerMQModel _mQLisenModel;
         private IMQPublisher _mQPublisher;
-        private IMQModel _mQLisenModel;
+        private IMQListener _mQListener;
 
         private bool _isReadyToTryConnect;
         public bool IsReadyToTryConnect
@@ -81,6 +83,17 @@ namespace ActiveMQExplorer.ViewModels
             }
         }
 
+        private Brush _connectStatusColor;
+        public Brush ConnectStatusColor
+        {
+            get => _connectStatusColor;
+            set
+            {
+                _connectStatusColor = value;
+                NotifyOfPropertyChange();
+            }
+        }
+
         public SettingsWindowViewModel()
         {
             var view = ViewLocator.LocateForModel(this, null, null);
@@ -92,12 +105,12 @@ namespace ActiveMQExplorer.ViewModels
                 activator.Activate();
         }
 
-        public SettingsWindowViewModel(IMQModel mQModel, IMQPublisher mQPublisher)
+        public SettingsWindowViewModel(IMQPublisher mQPublisher, IMQListener mQListener)
             : this()
         {
-            _mQPubModel = mQModel;
-            _mQLisenModel = mQModel;
+            _mQPubModel = MQModelsHandler.CurrentPublisherMQModel;
             _mQPublisher = mQPublisher;
+            _mQListener = mQListener;
         }
 
         public ICommand Connect
@@ -107,26 +120,56 @@ namespace ActiveMQExplorer.ViewModels
 
         private void TryConnect(object sender)
         {
-            _mQLisenModel.Host = Host;
-            _mQLisenModel.Port = Port;
-            _mQLisenModel.UserName = UserName;
-            _mQLisenModel.Password = Password;
-            _mQLisenModel.Destination = "MTS";
+            PublisherMQModel testPublisherModel = new PublisherMQModel
+            {
+                UserName = UserName,
+                Password = Password,
+                Host = Host,
+                Port = Port
+            };
 
-            _mQPubModel.Host = Host;
-            _mQPubModel.Port = Port;
-            _mQPubModel.UserName = UserName;
-            _mQPubModel.Password = Password;
-            _mQPubModel.Destination = "MTS";
-
-            _mQPublisher.SetPublisherModel(_mQPubModel);       
+            _mQPublisher.SetPublisherModel(testPublisherModel);    
+            
             string result = _mQPublisher.TryConnect();
+            if (result == "Success")
+            {
+                ConnectStatusColor = Brushes.Green;
+                MQModelsHandler.CurrentPublisherMQModel = testPublisherModel;
+                ScreensManager.MainWindowModel.Queues = _mQPublisher.GetQueueList().Result;
+            }             
+            else
+                ConnectStatusColor = Brushes.Red;
 
             ConnectStatus = result;
-            //if(result != "Success")
-            //{
+        }
 
-            //}
+        public ICommand ListenerConnect
+        {
+            get { return new DelegateCommand(TryListenerConnect); }
+        }
+
+        private void TryListenerConnect(object sender)
+        {
+            ListenerMQModel testListenerMQModel = new ListenerMQModel
+            {
+                UserName = UserName,
+                Password = Password,
+                Host = Host,
+                Port = Port
+            };
+
+            _mQListener.SetListenerModel(testListenerMQModel);
+
+            string result = _mQListener.TryConnect();
+            if (result == "Success")
+            {
+                ConnectStatusColor = Brushes.Green;
+                MQModelsHandler.CurrentListenerMQModel = testListenerMQModel;
+            }
+            else
+                ConnectStatusColor = Brushes.Red;
+
+            ConnectStatus = result;
         }
 
         private bool CheckConnectionParameters()

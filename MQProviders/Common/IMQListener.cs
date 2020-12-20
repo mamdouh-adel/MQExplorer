@@ -9,5 +9,6 @@ namespace MQProviders.Common
         void SetListenerModel(IMQModel ListenerModel);
         IMQModel GetListenerModel();
         ConcurrentQueue<string> ReadMessages { get; }
+        string TryConnect();
     }
 }

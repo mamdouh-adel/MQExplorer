@@ -48,9 +48,6 @@
       <HintPath>..\packages\Apache.NMS.ActiveMQ.1.7.2\lib\net40\Apache.NMS.ActiveMQ.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="Ionic.Zlib">
-      <HintPath>..\..\..\..\..\..\..\..\..\..\activemq\NMS.ActiveMQ\lib\DotNetZip\mono-2.0\Ionic.Zlib.dll</HintPath>
-    </Reference>
     <Reference Include="System.Transactions" />
     <Reference Include="System.Web" />
   </ItemGroup>

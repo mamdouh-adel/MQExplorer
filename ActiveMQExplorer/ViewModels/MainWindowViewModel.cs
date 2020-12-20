@@ -1,12 +1,11 @@
 ﻿using ActiveMQExplorer.Views;
 using Caliburn.Micro;
+using MQProviders.ActiveMQ;
 using MQProviders.Common;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
 
@@ -14,10 +13,8 @@ namespace ActiveMQExplorer.ViewModels
 {
     public class MainWindowViewModel : Conductor<Screen>.Collection.AllActive
     {
-        private IMQModel _mQPubModule;
-        private IMQPublisher _mQPublisher;
-        private IMQModel _mQLisenModel;
-        private IMQListener _mQListener;
+        private readonly IMQPublisher _mQPublisher;
+        private readonly IMQListener _mQListener;
 
         private volatile bool _stratRetreiveMessages;
 
@@ -29,13 +26,14 @@ namespace ActiveMQExplorer.ViewModels
 
         }
 
-        public MainWindowViewModel(SettingsWindowViewModel settingsWindowViewModel, IMQModel mQModel, IMQPublisher mQPublisher, IMQListener mQListener)
+        public MainWindowViewModel(SettingsWindowViewModel settingsWindowViewModel, IMQPublisher mQPublisher, IMQListener mQListener)
             : this()
         {
             Items.Add(settingsWindowViewModel);
 
-            _mQPubModule = mQModel;
-            _mQLisenModel = mQModel;
+            ScreensManager.MainWindowModel = this;
+            ScreensManager.SettingsWindowModel = settingsWindowViewModel;
+
             _mQPublisher = mQPublisher;
             _mQListener = mQListener;
             IsListenerAvailable = true;
@@ -45,7 +43,7 @@ namespace ActiveMQExplorer.ViewModels
             Task.Factory.StartNew(() => SetQueueListBox());
         }
 
-        private void SetQueueListBox()
+        public void SetQueueListBox()
         {
             Queues = _mQPublisher.GetQueueList().Result;
         }
@@ -136,10 +134,10 @@ namespace ActiveMQExplorer.ViewModels
                 return;
             }
 
-            _mQPubModule.Destination = MQDestination;
-            _mQPubModule.Data = MQData;
+            MQModelsHandler.CurrentPublisherMQModel.Destination = MQDestination;
+            MQModelsHandler.CurrentPublisherMQModel.Data = MQData;
 
-            _mQPublisher.SetPublisherModel(_mQPubModule);
+            _mQPublisher.SetPublisherModel(MQModelsHandler.CurrentPublisherMQModel);
             string result = _mQPublisher.StartTransaction();
             if(result == "Success")
             {
@@ -274,9 +272,9 @@ namespace ActiveMQExplorer.ViewModels
 
                 Task.Factory.StartNew(() => RetrieveMessagesFromMQ());
 
-                _mQLisenModel.Destination = MQDestination;
+                MQModelsHandler.CurrentListenerMQModel.Destination = MQDestination;
 
-                _mQListener.SetListenerModel(_mQLisenModel);
+                _mQListener.SetListenerModel(MQModelsHandler.CurrentListenerMQModel);
 
                 string result = _mQListener.StartListen();
                 if(result != "Success")

@@ -10,12 +10,12 @@ namespace MQProviders.ActiveMQ
     {
         private volatile bool _startListen;
         private IMQModel _listenerModel;
-        private readonly IConnectionFactory _connectionFactory;
+        private IConnectionFactory _connectionFactory;
 
         public ActiveMQListener()
         {
             _listenerModel = new ActiveMQModel();
-            _connectionFactory = new NMSConnectionFactory(_listenerModel?.BrokerURI);
+      //      _connectionFactory = new NMSConnectionFactory(_listenerModel?.BrokerURI);
             
             ReadMessages = new ConcurrentQueue<string>();
         }
@@ -24,6 +24,7 @@ namespace MQProviders.ActiveMQ
         {
             try
             {
+                _connectionFactory = new NMSConnectionFactory(_listenerModel?.BrokerURI);
                 using (IConnection connection = _connectionFactory.CreateConnection(_listenerModel.UserName, _listenerModel.Password))
                 {
                     connection.Start();
@@ -74,5 +75,28 @@ namespace MQProviders.ActiveMQ
         }
 
         public ConcurrentQueue<string> ReadMessages { get; }
+
+        public string TryConnect()
+        {
+            try
+            {
+                _connectionFactory = new NMSConnectionFactory(_listenerModel?.BrokerURI);
+                using (IConnection connection = _connectionFactory.CreateConnection(_listenerModel.UserName, _listenerModel.Password))
+                {
+                    connection.Start();
+
+                    using (ISession session = connection.CreateSession(AcknowledgementMode.AutoAcknowledge))
+                    {
+
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return "Failed to connect: " + ex.Message;
+            }
+
+            return "Success";
+        }
     }
 }
