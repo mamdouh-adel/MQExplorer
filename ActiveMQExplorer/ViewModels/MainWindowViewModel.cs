@@ -2,7 +2,9 @@
 using Caliburn.Micro;
 using MQProviders.ActiveMQ;
 using MQProviders.Common;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -14,6 +16,8 @@ namespace ActiveMQExplorer.ViewModels
 {
     public class MainWindowViewModel : Conductor<Screen>.Collection.AllActive
     {
+        private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         private readonly IMQPublisher _mQPublisher;
         private readonly IMQListener _mQListener;
 
@@ -54,12 +58,22 @@ namespace ActiveMQExplorer.ViewModels
             _mQPublisher.SetPublisherModel(MQModelsHandler.CurrentPublisherMQModel);
             _mQListener.SetListenerModel(MQModelsHandler.CurrentListenerMQModel);
 
+            _log.Debug($"Current Host: {_mQPublisher.GetPublisherModel().Host}");
+            _log.Debug($"Current Port: {_mQPublisher.GetPublisherModel().Port}");
+            _log.Debug($"Current UserName: {_mQPublisher.GetPublisherModel().UserName}");
+            _log.Debug($"Current Password: {_mQPublisher.GetPublisherModel().Password}");
+
             Task.Factory.StartNew(() => SetQueueListBox());
         }
 
         public void SetQueueListBox()
         {
             Queues = _mQPublisher.GetQueueList().Result;
+
+            if (Queues == null || Queues.Any() == false)
+                _log.Error($"Queues List: Null/Empty");
+            else
+                _log.Debug($"Queues List: {string.Join(", ", Queues?.ToArray())}");
         }
 
         private ISet<string> _queues;
@@ -143,6 +157,8 @@ namespace ActiveMQExplorer.ViewModels
 
         private void SendMessageToMQ(object sender)
         {
+            _log.Debug("Start send message to MQ...");
+
             if(string.IsNullOrWhiteSpace(MQDestination))
             {
                 MessageBox.Show("Please set or choose valid Queue", "Error", MessageBoxButton.OK, MessageBoxImage.Exclamation, MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
@@ -153,15 +169,25 @@ namespace ActiveMQExplorer.ViewModels
             MQModelsHandler.CurrentPublisherMQModel.Data = MQData;
 
             _mQPublisher.SetPublisherModel(MQModelsHandler.CurrentPublisherMQModel);
+
+            _log.Debug($"Publisher Info: Host: {MQModelsHandler.CurrentPublisherMQModel.Host}");
+            _log.Debug($"Publisher Info: Port: {MQModelsHandler.CurrentPublisherMQModel.Port}");
+            _log.Debug($"Publisher Info: Destination: {MQModelsHandler.CurrentPublisherMQModel.Destination}");
+            _log.Debug($"Publisher Info: Data: {MQModelsHandler.CurrentPublisherMQModel.Data}");
+            _log.Debug($"Publisher Info: UserName: {MQModelsHandler.CurrentPublisherMQModel.UserName}");
+            _log.Debug($"Publisher Info: Password: {MQModelsHandler.CurrentPublisherMQModel.Password}");
+
             string result = _mQPublisher.StartTransaction();
             if (result == "Success")
             {
+                _log.Debug($"Sent Data: {MQModelsHandler.CurrentPublisherMQModel.Data} successfully to {MQModelsHandler.CurrentPublisherMQModel.Destination}");
 
                 if (Queues.Contains(MQDestination) == false)
                 {
                     Application.Current.Dispatcher.Invoke(DispatcherPriority.DataBind, new ThreadStart(delegate
                     {
                         Queues.Add(MQDestination);
+                        _log.Debug($"Adding {MQDestination} to Queues");
                     }));
                 }
 
@@ -169,7 +195,11 @@ namespace ActiveMQExplorer.ViewModels
                 SendStatusColor = Brushes.Green;
             }
             else
+            {
                 SendStatusColor = Brushes.Red;
+                _log.Error($"Send Data: {MQModelsHandler.CurrentPublisherMQModel.Data} to {MQModelsHandler.CurrentPublisherMQModel.Destination} failed, reason: {result}");
+            }
+                
 
             SendStatus = result;
 
@@ -253,7 +283,9 @@ namespace ActiveMQExplorer.ViewModels
             {
                 bool haveMessages = _mQListener.ReadMessages.TryDequeue(out string message);
                 if (haveMessages)
-                {                   
+                {
+                    _log.Debug($"Messages found, Data: {message}");
+
                     Application.Current.Dispatcher.Invoke(DispatcherPriority.DataBind, new ThreadStart(delegate
                     {
                         List<MessageData> newMessageDataList = new List<MessageData>(MessagesDataList)
@@ -299,6 +331,8 @@ namespace ActiveMQExplorer.ViewModels
         {
             if ((bool)isListenerChecked)
             {
+                _log.Debug("Try to listen");
+
                 Task.Factory.StartNew(() => {
                     _isListenerRun = true;
                     IsListenerAvailable = !_isListenerRun;
@@ -314,6 +348,15 @@ namespace ActiveMQExplorer.ViewModels
                 string result = _mQListener.StartListen();
                 if(result != "Success")
                 {
+                    _log.Error($"Failed to start listening, reason: {result}");
+
+                    _log.Error($"Listener Info: Host: {MQModelsHandler.CurrentListenerMQModel.Host}");
+                    _log.Error($"Listener Info: Port: {MQModelsHandler.CurrentListenerMQModel.Port}");
+                    _log.Error($"Listener Info: Destination: {MQModelsHandler.CurrentListenerMQModel.Destination}");
+                    _log.Error($"Listener Info: Data: {MQModelsHandler.CurrentListenerMQModel.Data}");
+                    _log.Error($"Listener Info: UserName: {MQModelsHandler.CurrentListenerMQModel.UserName}");
+                    _log.Error($"Listener Info: Password: {MQModelsHandler.CurrentListenerMQModel.Password}");
+
                     _isListenerRun = false;
                     IsListenerAvailable = !_isListenerRun;
                     ListenText = "Fail";
@@ -323,6 +366,8 @@ namespace ActiveMQExplorer.ViewModels
             }
             else
             {
+                _log.Debug("Try to stop listening");
+
                 _stratRetreiveMessages = false;
                 _isListenerRun = false;
                 IsListenerAvailable = !_isListenerRun;

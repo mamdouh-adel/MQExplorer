@@ -1,25 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace ActiveMQExplorer.Views
 {
     public partial class MainWindowView : Window
     {
+        private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         public MainWindowView()
         {
             InitializeComponent();
+
+            _log.Info("MQExplorer Start...");
         }
 
         private void GoToSettings(object sender, RoutedEventArgs e)
@@ -40,11 +33,17 @@ namespace ActiveMQExplorer.Views
             base.OnClosed(e);
 
             Application.Current.Shutdown();
+
+            _log.Info("MQExplorer Shutdown...");
+            _log.Info("--------------------------------");
         }
 
         private void AppExit(object sender, RoutedEventArgs e)
         {
             Application.Current.Shutdown();
+
+            _log.Info("MQExplorer Shutdown...");
+            _log.Info("--------------------------------");
         }
     }
 }

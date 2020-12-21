@@ -11,6 +11,8 @@ namespace ActiveMQExplorer
         public App()
         {
             _bootstrapper = new Bootstrapper();
+
+            log4net.Config.XmlConfigurator.Configure();
         }
 
         protected override void OnStartup(StartupEventArgs e)

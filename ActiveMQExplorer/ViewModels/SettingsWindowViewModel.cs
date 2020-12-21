@@ -1,6 +1,7 @@
 ﻿using Caliburn.Micro;
 using MQProviders.ActiveMQ;
 using MQProviders.Common;
+using System.Linq;
 using System.Windows.Input;
 using System.Windows.Media;
 
@@ -8,6 +9,8 @@ namespace ActiveMQExplorer.ViewModels
 {
     public class SettingsWindowViewModel : Conductor<Screen>.Collection.AllActive
     {
+        private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         private PublisherMQModel _mQPubModel;
     //    private ListenerMQModel _mQLisenModel;
         private IMQPublisher _mQPublisher;
@@ -148,11 +151,18 @@ namespace ActiveMQExplorer.ViewModels
             string result = _mQPublisher.TryConnect();
             if (result == "Success")
             {
+                _log.Debug("Connection successfully");
+
                 ConnectStatusColor = Brushes.Green;
 
                 MQModelsHandler.CurrentPublisherMQModel = testPublisherModel;
                 MQModelsHandler.CurrentListenerMQModel = testListenerMQModel;
                 ScreensManager.MainWindowModel.Queues = _mQListener.GetQueueList().Result;
+
+                if(ScreensManager.MainWindowModel.Queues == null || ScreensManager.MainWindowModel.Queues.Any() == false)
+                    _log.Error($"Queues List: Null/Empty");
+                else
+                    _log.Debug($"Queues List: {string.Join(", ", ScreensManager.MainWindowModel.Queues?.ToArray())}");
 
                 Properties.Settings.Default.host = MQModelsHandler.CurrentPublisherMQModel.Host;
                 Properties.Settings.Default.port = MQModelsHandler.CurrentPublisherMQModel.Port;
@@ -161,9 +171,24 @@ namespace ActiveMQExplorer.ViewModels
 
                 Properties.Settings.Default.Save();
                 Properties.Settings.Default.Reload();
+
+                _log.Debug("Connection configuration was saved");
+
+                _log.Debug($"Configuration: Host: {Properties.Settings.Default.host}");
+                _log.Debug($"Configuration: Port: {Properties.Settings.Default.port}");
+                _log.Debug($"Configuration: UserName: {Properties.Settings.Default.user_name}");
+                _log.Debug($"Configuration: Password: {Properties.Settings.Default.password}");
             }             
             else
+            {
                 ConnectStatusColor = Brushes.Red;
+                _log.Debug("Connection failed!");
+
+                _log.Error($"Configuration: Host: {Properties.Settings.Default.host}");
+                _log.Error($"Configuration: Port: {Properties.Settings.Default.port}");
+                _log.Error($"Configuration: UserName: {Properties.Settings.Default.user_name}");
+                _log.Error($"Configuration: Password: {Properties.Settings.Default.password}");
+            }
 
             ConnectStatus = result;
         }
