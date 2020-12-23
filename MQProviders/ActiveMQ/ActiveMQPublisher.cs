@@ -24,20 +24,34 @@ namespace MQProviders.ActiveMQ
             try
             {
                 _connectionFactory = new NMSConnectionFactory(_publisherModel?.BrokerURI);
+                if (_connectionFactory == null)
+                    return "Null ConnectionFactory!";
 
                 using (IConnection connection = _connectionFactory.CreateConnection(_publisherModel.UserName, _publisherModel.Password))
                 {
+                    if (connection == null)
+                        return "Null Connection!";
+
                     connection.Start();
 
                     using (ISession session = connection?.CreateSession(AcknowledgementMode.AutoAcknowledge))
                     {
-                        IDestination dest = session.GetQueue(_publisherModel.Destination);
+                        if (session == null)
+                            return "Null Session!";
 
-                        using (IMessageProducer messageProducer = session.CreateProducer(dest))
+                        using (IDestination dest = session.GetQueue(_publisherModel.Destination))
                         {
-                            messageProducer.DeliveryMode = MsgDeliveryMode.NonPersistent;
-                            messageProducer.Send(session?.CreateTextMessage(_publisherModel.Data));
-                        }
+                            if (dest == null)
+                                return "Null Queue!";
+                            using (IMessageProducer messageProducer = session.CreateProducer(dest))
+                            {
+                                if (messageProducer == null)
+                                    return "Null Message Producer!";
+
+                                messageProducer.DeliveryMode = MsgDeliveryMode.NonPersistent;
+                                messageProducer.Send(session.CreateTextMessage(_publisherModel.Data));
+                            }
+                        }     
                     }
                 }
             }

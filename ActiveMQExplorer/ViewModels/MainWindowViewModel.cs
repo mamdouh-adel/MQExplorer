@@ -157,7 +157,7 @@ namespace ActiveMQExplorer.ViewModels
 
         private void SendMessageToMQ(object sender)
         {
-            _log.Debug("Start send message to MQ...");
+            _log.Debug($"Start send message to {MQDestination}");
 
             if(string.IsNullOrWhiteSpace(MQDestination))
             {
@@ -286,6 +286,9 @@ namespace ActiveMQExplorer.ViewModels
                 {
                     _log.Debug($"Messages found, Data: {message}");
 
+                    if(string.IsNullOrEmpty(message))
+                        _log.Error("Null incoming message!");
+
                     Application.Current.Dispatcher.Invoke(DispatcherPriority.DataBind, new ThreadStart(delegate
                     {
                         List<MessageData> newMessageDataList = new List<MessageData>(MessagesDataList)
@@ -331,7 +334,7 @@ namespace ActiveMQExplorer.ViewModels
         {
             if ((bool)isListenerChecked)
             {
-                _log.Debug("Try to listen");
+                _log.Debug($"Trying listen to {MQDestination}");
 
                 Task.Factory.StartNew(() => {
                     _isListenerRun = true;
@@ -366,7 +369,7 @@ namespace ActiveMQExplorer.ViewModels
             }
             else
             {
-                _log.Debug("Try to stop listening");
+                _log.Debug("Stop listening");
 
                 _stratRetreiveMessages = false;
                 _isListenerRun = false;

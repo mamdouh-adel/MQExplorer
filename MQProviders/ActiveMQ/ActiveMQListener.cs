@@ -20,7 +20,6 @@ namespace MQProviders.ActiveMQ
         public ActiveMQListener()
         {
             _listenerModel = new ActiveMQModel();
-      //      _connectionFactory = new NMSConnectionFactory(_listenerModel?.BrokerURI);
             
             ReadMessages = new ConcurrentQueue<string>();
         }
@@ -30,16 +29,31 @@ namespace MQProviders.ActiveMQ
             try
             {
                 _connectionFactory = new NMSConnectionFactory(_listenerModel?.BrokerURI);
+                if (_connectionFactory == null)
+                    return "Null ConnectionFactory!";
+
                 using (IConnection connection = _connectionFactory.CreateConnection(_listenerModel.UserName, _listenerModel.Password))
                 {
+                    if (connection == null)
+                        return "Null Connection!";
+
                     connection.Start();
 
                     using (ISession session = connection.CreateSession(AcknowledgementMode.AutoAcknowledge))
                     {
+                        if (session == null)
+                            return "Null Session!";
+
                         using (IDestination dest = session.GetQueue(_listenerModel.Destination))
                         {
+                            if (dest == null)
+                                return "Null Queue!";
+
                             using (IMessageConsumer consumer = session.CreateConsumer(dest))
                             {
+                                if (consumer == null)
+                                    return "Null Message Consumer!";
+
                                 ListenSession(consumer);
                             }
                         }
@@ -60,10 +74,11 @@ namespace MQProviders.ActiveMQ
             _listenerModel.Messages = 0;
             while (_startListen)
             {
-                IMessage msg = consumer?.Receive();
-                ITextMessage txtMsg = msg as ITextMessage;
-
-                ReadMessages.Enqueue(txtMsg.Text);
+                IMessage msg = consumer.Receive();
+                if (!(msg is ITextMessage txtMsg))
+                    ReadMessages.Enqueue(string.Empty);
+                else
+                    ReadMessages.Enqueue(txtMsg.Text);
 
                 ++_listenerModel.Messages;
 
