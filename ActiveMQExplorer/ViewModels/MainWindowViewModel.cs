@@ -99,6 +99,17 @@ namespace ActiveMQExplorer.ViewModels
             }
         }
 
+        private bool _isReadyToSend = true;
+        public bool IsReadyToSend
+        {
+            get => _isReadyToSend;
+            set
+            {
+                _isReadyToSend = value;
+                NotifyOfPropertyChange();
+            }
+        }
+
         private string _mQDestination;
         public string MQDestination
         {
@@ -157,6 +168,8 @@ namespace ActiveMQExplorer.ViewModels
 
         private void SendMessageToMQ(object sender)
         {
+            IsReadyToSend = false;
+
             _log.Debug($"Start send message to {MQDestination}");
 
             if(string.IsNullOrWhiteSpace(MQDestination))
@@ -176,6 +189,10 @@ namespace ActiveMQExplorer.ViewModels
             _log.Debug($"Publisher Info: Data: {MQModelsHandler.CurrentPublisherMQModel.Data}");
             _log.Debug($"Publisher Info: UserName: {MQModelsHandler.CurrentPublisherMQModel.UserName}");
             _log.Debug($"Publisher Info: Password: {MQModelsHandler.CurrentPublisherMQModel.Password}");
+
+            IsReadyToSend = false;
+            SendStatusColor = Brushes.DarkOrange;
+            SendStatus = "Please wait...";
 
             string result = _mQPublisher.StartTransaction();
             if (result == "Success")
@@ -199,8 +216,8 @@ namespace ActiveMQExplorer.ViewModels
                 SendStatusColor = Brushes.Red;
                 _log.Error($"Send Data: {MQModelsHandler.CurrentPublisherMQModel.Data} to {MQModelsHandler.CurrentPublisherMQModel.Destination} failed, reason: {result}");
             }
-                
 
+            IsReadyToSend = true;
             SendStatus = result;
 
             Task.Factory.StartNew(() =>

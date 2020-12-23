@@ -42,8 +42,8 @@ namespace ActiveMQExplorer.Views
         {
             Application.Current.Shutdown();
 
-            _log.Info("MQExplorer Shutdown...");
-            _log.Info("--------------------------------");
+            //_log.Info("MQExplorer Shutdown...");
+            //_log.Info("--------------------------------");
         }
     }
 }
