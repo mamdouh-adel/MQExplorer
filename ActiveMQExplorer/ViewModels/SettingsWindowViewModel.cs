@@ -128,6 +128,10 @@ namespace ActiveMQExplorer.ViewModels
 
         private void TryConnect(object sender)
         {
+            IsReadyToTryConnect = false;
+            ConnectStatusColor = Brushes.DarkOrange;
+            ConnectStatus = "Please wait...";       
+
             PublisherMQModel testPublisherModel = new PublisherMQModel
             {
                 UserName = UserName,
@@ -146,23 +150,26 @@ namespace ActiveMQExplorer.ViewModels
                 Port = Port
             };
 
-            _mQListener.SetListenerModel(testListenerMQModel);
-            
+            _mQListener.SetListenerModel(testListenerMQModel);              
             string result = _mQPublisher.TryConnect();
             if (result == "Success")
             {
                 _log.Debug("Connection successfully");
-
-                ConnectStatusColor = Brushes.Green;
 
                 MQModelsHandler.CurrentPublisherMQModel = testPublisherModel;
                 MQModelsHandler.CurrentListenerMQModel = testListenerMQModel;
                 ScreensManager.MainWindowModel.Queues = _mQListener.GetQueueList().Result;
 
                 if(ScreensManager.MainWindowModel.Queues == null || ScreensManager.MainWindowModel.Queues.Any() == false)
+                {
+                    result = "Successfully connected, but cannot get the Queues names";
                     _log.Error($"Queues List: Null/Empty");
+                }
                 else
+                {
+                    result = "Successfully connected";
                     _log.Debug($"Queues List: {string.Join(", ", ScreensManager.MainWindowModel.Queues?.ToArray())}");
+                }
 
                 Properties.Settings.Default.host = MQModelsHandler.CurrentPublisherMQModel.Host;
                 Properties.Settings.Default.port = MQModelsHandler.CurrentPublisherMQModel.Port;
@@ -171,6 +178,8 @@ namespace ActiveMQExplorer.ViewModels
 
                 Properties.Settings.Default.Save();
                 Properties.Settings.Default.Reload();
+
+                ConnectStatusColor = Brushes.Green;
 
                 _log.Debug("Connection configuration was saved");
 
@@ -191,6 +200,7 @@ namespace ActiveMQExplorer.ViewModels
             }
 
             ConnectStatus = result;
+            IsReadyToTryConnect = true;
         }
 
         public ICommand ListenerConnect

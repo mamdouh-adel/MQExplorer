@@ -121,7 +121,7 @@ namespace MQProviders.ActiveMQ
 
         public async Task<ISet<string>> GetQueueList()
         {
-            string uri = $"http://{_listenerModel.Host}:8161/api/jolokia/read/org.apache.activemq:type=Broker,brokerName={_listenerModel.Host}";
+            string uri = $"http://{_listenerModel.Host}:8161/api/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost";
 
             HashSet<string> queueList = new HashSet<string>();
 
@@ -131,6 +131,8 @@ namespace MQProviders.ActiveMQ
                 {
                     var byteArray = Encoding.ASCII.GetBytes($"{_listenerModel.UserName}:{_listenerModel.Password}");
                     httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
+
+                    httpClient.Timeout = TimeSpan.FromSeconds(5);
 
                     string result = await httpClient.GetStringAsync(uri);
                     if (string.IsNullOrWhiteSpace(result))
