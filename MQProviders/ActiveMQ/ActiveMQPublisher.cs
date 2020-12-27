@@ -14,7 +14,7 @@ namespace MQProviders.ActiveMQ
         private IMQModel _publisherModel;
         private IConnectionFactory _connectionFactory;
 
-        public PublisherMode PublisherMode { get; set; }
+    //    public PublisherMode PublisherMode { get; set; }
 
         public ActiveMQPublisher()
         {
@@ -52,18 +52,40 @@ namespace MQProviders.ActiveMQ
 
                                 messageProducer.DeliveryMode = MsgDeliveryMode.NonPersistent;
 
-                                if (PublisherMode == PublisherMode.ObjectMode)
+                                if (_publisherModel.PublisherMode == PublisherMode.ObjectMode)
                                 {
-                                    IObjectMessage message = session.CreateObjectMessage(_publisherModel.Data);
-                                    messageProducer.Send(message);
+                                    IObjectMessage objectMessage = session.CreateObjectMessage(_publisherModel.Data);
+                                    messageProducer.Send(objectMessage);
                                 }
-                                else if (PublisherMode == PublisherMode.TextMode)
+                                else if (_publisherModel.PublisherMode == PublisherMode.TextMode)
                                 {
-                                    ITextMessage message = session.CreateTextMessage(_publisherModel.Data);
-                                    messageProducer.Send(message);
+                                    ITextMessage textMessage = session.CreateTextMessage(_publisherModel.Data);
+                                    messageProducer.Send(textMessage);
+                                }
+                                else if (_publisherModel.PublisherMode == PublisherMode.StreamMode)
+                                {
+                                    IStreamMessage streamMessage = session.CreateStreamMessage();
+                                    streamMessage.WriteString(_publisherModel.Data);
+                                    messageProducer.Send(streamMessage);
+                                }
+                                else if (_publisherModel.PublisherMode == PublisherMode.BytesMode)
+                                {
+                                    IBytesMessage bytesMessage = session.CreateBytesMessage(Encoding.ASCII.GetBytes(_publisherModel.Data));
+                                    messageProducer.Send(bytesMessage);
+                                }
+                                else if (_publisherModel.PublisherMode == PublisherMode.MapMode)
+                                {
+                                    IMapMessage mapMessage = session.CreateMapMessage();
+                                    mapMessage.Body.SetString("key", _publisherModel.Data);
+                                    messageProducer.Send(mapMessage);
+                                }
+                                else if (_publisherModel.PublisherMode == PublisherMode.XmlMode)
+                                {
+                                    ITextMessage xmlMessage = session.CreateXmlMessage(_publisherModel.Data);
+                                    messageProducer.Send(xmlMessage);
                                 }
                                 else
-                                    return "Cannot determine the Punisher Mode!";
+                                    return "Cannot determine the Publisher Mode!";
                             }
                         }     
                     }

@@ -70,5 +70,17 @@ namespace ActiveMQExplorer.Properties {
                 this["password"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public int publisher_mode {
+            get {
+                return ((int)(this["publisher_mode"]));
+            }
+            set {
+                this["publisher_mode"] = value;
+            }
+        }
     }
 }

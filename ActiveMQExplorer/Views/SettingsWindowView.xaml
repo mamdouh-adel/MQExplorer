@@ -12,16 +12,18 @@
          <TabControl HorizontalAlignment="Left" Height="330" Margin="0,0,0,0" VerticalAlignment="Top" Width="595">
             <TabItem Header="Publisher Setting">
                 <Grid Background="#f7fafe">
-                    <Label Content="Host" HorizontalAlignment="Left" Margin="126,25,0,0" VerticalAlignment="Top" FontStretch="UltraExpanded" FontWeight="Bold"/>
-                    <TextBox HorizontalAlignment="Left" Height="23" Margin="198,28,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="184" ToolTip="Enter MQ Host Name or IP" FontStretch="UltraExpanded" FontWeight="Bold" Foreground="#566573" Text="{Binding Host}"/>
-                    <Label Content="User Name" HorizontalAlignment="Left" Margin="126,79,0,0" VerticalAlignment="Top" FontStretch="UltraExpanded" FontWeight="Bold"/>
-                    <TextBox HorizontalAlignment="Left" Height="23" Margin="198,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="184" ToolTip="Enter MQ User Name" FontStretch="UltraExpanded" FontWeight="Bold" Foreground="#566573" Text="{Binding UserName}"/>
-                    <Label Content="Password" HorizontalAlignment="Left" Margin="126,132,0,0" VerticalAlignment="Top" FontStretch="UltraExpanded" FontWeight="Bold"/>
-                    <PasswordBox x:Name="PasswordBox" ff:PasswordBoxAssistant.BindPassword="true" ff:PasswordBoxAssistant.BoundPassword="{Binding Path=Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Height="23" Margin="198,135,0,0" VerticalAlignment="Top" Width="184" ToolTip="Enter MQ Password" FontStretch="UltraExpanded" FontWeight="Bold" Foreground="#566573" />
-                    <Label Content="Port" HorizontalAlignment="Left" Margin="385,24,0,0" VerticalAlignment="Top" FontStretch="UltraExpanded" FontWeight="Bold" Width="35" RenderTransformOrigin="-1.176,0.646"/>
-                    <TextBox HorizontalAlignment="Left" Height="23" Margin="425,27,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="74" ToolTip="Enter MQ Host Port" FontStretch="UltraExpanded" FontWeight="Bold" Foreground="#566573" Text="{Binding Port}"/>
-                    <Button Content="Connect" HorizontalAlignment="Left" Margin="245,202,0,0" VerticalAlignment="Top" Width="96" FontStretch="UltraExpanded" FontWeight="Bold" Foreground="#A93226" Command="{Binding Connect}" IsEnabled="{Binding IsReadyToTryConnect}"/>
-                    <Label Content="{Binding ConnectStatus}" HorizontalAlignment="Left" Margin="126,262,0,0" VerticalAlignment="Top" FontWeight="Medium" Foreground="{Binding ConnectStatusColor}" />
+                    <Label Content="Publisher Mode" HorizontalAlignment="Left" Margin="126,8,0,0" VerticalAlignment="Top" FontStretch="UltraExpanded" FontWeight="Bold"/>
+                    <ComboBox x:Name="publisher_mode"  HorizontalAlignment="Left" Margin="224,10,0,0" VerticalAlignment="Top" FontStretch="UltraExpanded" FontWeight="Bold" Text="{Binding PublisherModeText}" ItemsSource="{Binding PublisherModeList}" SelectedItem="{Binding PublisherModeText}"/>
+                    <Label Content="Host" HorizontalAlignment="Left" Margin="126,58,0,0" VerticalAlignment="Top" FontStretch="UltraExpanded" FontWeight="Bold"/>
+                    <TextBox HorizontalAlignment="Left" Height="23" Margin="198,60,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="184" ToolTip="Enter MQ Host Name or IP" FontStretch="UltraExpanded" FontWeight="Bold" Foreground="#566573" Text="{Binding Host}"/>
+                    <Label Content="User Name" HorizontalAlignment="Left" Margin="126,108,0,0" VerticalAlignment="Top" FontStretch="UltraExpanded" FontWeight="Bold"/>
+                    <TextBox HorizontalAlignment="Left" Height="23" Margin="198,110,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="184" ToolTip="Enter MQ User Name" FontStretch="UltraExpanded" FontWeight="Bold" Foreground="#566573" Text="{Binding UserName}"/>
+                    <Label Content="Password" HorizontalAlignment="Left" Margin="126,158,0,0" VerticalAlignment="Top" FontStretch="UltraExpanded" FontWeight="Bold"/>
+                    <PasswordBox x:Name="PasswordBox" ff:PasswordBoxAssistant.BindPassword="true" ff:PasswordBoxAssistant.BoundPassword="{Binding Path=Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Height="23" Margin="198,160,0,0" VerticalAlignment="Top" Width="184" ToolTip="Enter MQ Password" FontStretch="UltraExpanded" FontWeight="Bold" Foreground="#566573" />
+                    <Label Content="Port" HorizontalAlignment="Left" Margin="385,58,0,0" VerticalAlignment="Top" FontStretch="UltraExpanded" FontWeight="Bold" Width="35" RenderTransformOrigin="-1.176,0.646"/>
+                    <TextBox HorizontalAlignment="Left" Height="23" Margin="425,60,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="74" ToolTip="Enter MQ Host Port" FontStretch="UltraExpanded" FontWeight="Bold" Foreground="#566573" Text="{Binding Port}"/>
+                    <Button Content="Connect" HorizontalAlignment="Left" Margin="245,214,0,0" VerticalAlignment="Top" Width="96" FontStretch="UltraExpanded" FontWeight="Bold" Foreground="#A93226" Command="{Binding Connect}" IsEnabled="{Binding IsReadyToTryConnect}"/>
+                    <Label Content="{Binding ConnectStatus}" HorizontalAlignment="Left" Margin="126,260,0,0" VerticalAlignment="Top" FontWeight="Medium" Foreground="{Binding ConnectStatusColor}" />
                 </Grid>
             </TabItem>
          <!--   <TabItem Header="Listener Setting">

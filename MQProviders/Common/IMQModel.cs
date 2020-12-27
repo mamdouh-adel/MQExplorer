@@ -13,5 +13,6 @@ namespace MQProviders.Common
         string BrokerURI { get; } 
         long Messages { get; set; }
         int Size { get; set; }
+        PublisherMode PublisherMode { get; set; }
     }
 }

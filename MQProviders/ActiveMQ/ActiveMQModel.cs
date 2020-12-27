@@ -13,6 +13,7 @@ namespace MQProviders.ActiveMQ
         public string BrokerURI { get => string.Concat("activemq:tcp://", Host, ":", Port, "?transport.useLogging=true"); }
         public long Messages { get; set; } = 10000;
         public int Size { get; set; } = 256;
+        public PublisherMode PublisherMode { get; set; }
     }
 
     public class PublisherMQModel : ActiveMQModel

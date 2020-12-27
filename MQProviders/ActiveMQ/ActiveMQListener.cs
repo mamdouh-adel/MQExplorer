@@ -79,9 +79,28 @@ namespace MQProviders.ActiveMQ
                 {
                     ReadMessages.Enqueue(objectMessage.Body as string);
                 }
-                else if (message is ITextMessage txtMsg)
+                else if (message is ITextMessage textMessage)
                 {
-                    ReadMessages.Enqueue(txtMsg.Text);
+                    ReadMessages.Enqueue(textMessage.Text);
+                }
+                else if (message is IStreamMessage streamMessage)
+                {
+                    ReadMessages.Enqueue(streamMessage.ReadString());
+                }
+                else if (message is IBytesMessage bytesMessage)
+                {
+                    List<byte> msg = new List<byte>();
+                    for(long i = 0; i < bytesMessage.BodyLength; i++)
+                    {
+                        msg.Add(bytesMessage.ReadByte());
+                    }
+                    string messageContent = Encoding.ASCII.GetString(msg.ToArray(), 0, msg.Count);
+                    ReadMessages.Enqueue(messageContent);
+                }
+                else if (message is IMapMessage mapMessage)
+                {
+                    string msg = mapMessage.Body.GetString("key");       
+                    ReadMessages.Enqueue(msg);
                 }
                 else
                     ReadMessages.Enqueue(string.Empty);

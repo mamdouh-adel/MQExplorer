@@ -44,7 +44,7 @@ namespace ActiveMQExplorer.ViewModels
             IsListenerAvailable = true;
 
             // set Publisher Mode, add to setting GUI later
-            _mQPublisher.PublisherMode = PublisherMode.ObjectMode;
+            //_mQPublisher.PublisherMode = PublisherMode.ObjectMode;
 
             MessagesDataList = new List<MessageData>();
 
@@ -52,6 +52,7 @@ namespace ActiveMQExplorer.ViewModels
             MQModelsHandler.CurrentPublisherMQModel.Port = Properties.Settings.Default.port;
             MQModelsHandler.CurrentPublisherMQModel.UserName = Properties.Settings.Default.user_name;
             MQModelsHandler.CurrentPublisherMQModel.Password = Properties.Settings.Default.password;
+            MQModelsHandler.CurrentPublisherMQModel.PublisherMode = (PublisherMode)Properties.Settings.Default.publisher_mode;
 
             MQModelsHandler.CurrentListenerMQModel.Host = Properties.Settings.Default.host;
             MQModelsHandler.CurrentListenerMQModel.Port = Properties.Settings.Default.port;
@@ -61,7 +62,7 @@ namespace ActiveMQExplorer.ViewModels
             _mQPublisher.SetPublisherModel(MQModelsHandler.CurrentPublisherMQModel);
             _mQListener.SetListenerModel(MQModelsHandler.CurrentListenerMQModel);
 
-            _log.Debug($"Publisher Mode: {_mQPublisher.PublisherMode}");
+            _log.Debug($"Current Publisher Mode: {_mQPublisher.GetPublisherModel().PublisherMode}");
             
             _log.Debug($"Current Host: {_mQPublisher.GetPublisherModel().Host}");
             _log.Debug($"Current Port: {_mQPublisher.GetPublisherModel().Port}");
@@ -189,6 +190,7 @@ namespace ActiveMQExplorer.ViewModels
 
             _mQPublisher.SetPublisherModel(MQModelsHandler.CurrentPublisherMQModel);
 
+            _log.Debug($"Publisher Mode: {MQModelsHandler.CurrentPublisherMQModel.PublisherMode}");
             _log.Debug($"Publisher Info: Host: {MQModelsHandler.CurrentPublisherMQModel.Host}");
             _log.Debug($"Publisher Info: Port: {MQModelsHandler.CurrentPublisherMQModel.Port}");
             _log.Debug($"Publisher Info: Destination: {MQModelsHandler.CurrentPublisherMQModel.Destination}");

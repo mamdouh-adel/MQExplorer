@@ -1,6 +1,8 @@
 ﻿using Caliburn.Micro;
 using MQProviders.ActiveMQ;
 using MQProviders.Common;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -13,6 +15,7 @@ namespace ActiveMQExplorer.ViewModels
 
         private PublisherMQModel _mQPubModel;
     //    private ListenerMQModel _mQLisenModel;
+
         private IMQPublisher _mQPublisher;
         private IMQListener _mQListener;
 
@@ -97,6 +100,30 @@ namespace ActiveMQExplorer.ViewModels
             }
         }
 
+        public List<string> PublisherModeList
+        {
+            get
+            {
+                return Enum.GetNames(typeof(PublisherMode)).ToList();
+            }
+        }
+
+        private string _publisherModeText;
+        public string PublisherModeText
+        {
+            get => _publisherModeText;
+            set
+            {
+                _publisherModeText = value;
+                bool isSuccessNewValue = Enum.TryParse(_publisherModeText, out PublisherMode newValue);
+                if (isSuccessNewValue)
+                    MQModelsHandler.CurrentPublisherMQModel.PublisherMode = newValue;
+
+                NotifyOfPropertyChange();
+            }
+        }
+
+
         public SettingsWindowViewModel()
         {
             var view = ViewLocator.LocateForModel(this, null, null);
@@ -119,6 +146,7 @@ namespace ActiveMQExplorer.ViewModels
             Port = Properties.Settings.Default.port;
             UserName = Properties.Settings.Default.user_name;
             Password = Properties.Settings.Default.password;
+            PublisherModeText = Enum.GetName(typeof(PublisherMode), Properties.Settings.Default.publisher_mode);
         }
 
         public ICommand Connect
@@ -137,7 +165,8 @@ namespace ActiveMQExplorer.ViewModels
                 UserName = UserName,
                 Password = Password,
                 Host = Host,
-                Port = Port
+                Port = Port,
+                PublisherMode = MQModelsHandler.CurrentPublisherMQModel.PublisherMode
             };
 
             _mQPublisher.SetPublisherModel(testPublisherModel);
@@ -175,6 +204,7 @@ namespace ActiveMQExplorer.ViewModels
                 Properties.Settings.Default.port = MQModelsHandler.CurrentPublisherMQModel.Port;
                 Properties.Settings.Default.user_name = MQModelsHandler.CurrentPublisherMQModel.UserName;
                 Properties.Settings.Default.password = MQModelsHandler.CurrentPublisherMQModel.Password;
+                Properties.Settings.Default.publisher_mode = (int)MQModelsHandler.CurrentPublisherMQModel.PublisherMode;
 
                 Properties.Settings.Default.Save();
                 Properties.Settings.Default.Reload();
@@ -183,6 +213,7 @@ namespace ActiveMQExplorer.ViewModels
 
                 _log.Debug("Connection configuration was saved");
 
+                _log.Debug($"Configuration: Publisher Mode: {MQModelsHandler.CurrentPublisherMQModel.PublisherMode}");
                 _log.Debug($"Configuration: Host: {Properties.Settings.Default.host}");
                 _log.Debug($"Configuration: Port: {Properties.Settings.Default.port}");
                 _log.Debug($"Configuration: UserName: {Properties.Settings.Default.user_name}");
@@ -193,6 +224,7 @@ namespace ActiveMQExplorer.ViewModels
                 ConnectStatusColor = Brushes.Red;
                 _log.Debug("Connection failed!");
 
+                _log.Error($"Configuration: Publisher Mode: {MQModelsHandler.CurrentPublisherMQModel.PublisherMode}");
                 _log.Error($"Configuration: Host: {Properties.Settings.Default.host}");
                 _log.Error($"Configuration: Port: {Properties.Settings.Default.port}");
                 _log.Error($"Configuration: UserName: {Properties.Settings.Default.user_name}");
