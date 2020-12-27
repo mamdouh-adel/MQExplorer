@@ -74,11 +74,17 @@ namespace MQProviders.ActiveMQ
             _listenerModel.Messages = 0;
             while (_startListen)
             {
-                IMessage msg = consumer.Receive();
-                if (!(msg is ITextMessage txtMsg))
-                    ReadMessages.Enqueue(string.Empty);
-                else
+                IMessage message = consumer.Receive();
+                if (message is IObjectMessage objectMessage)
+                {
+                    ReadMessages.Enqueue(objectMessage.Body as string);
+                }
+                else if (message is ITextMessage txtMsg)
+                {
                     ReadMessages.Enqueue(txtMsg.Text);
+                }
+                else
+                    ReadMessages.Enqueue(string.Empty);
 
                 ++_listenerModel.Messages;
 

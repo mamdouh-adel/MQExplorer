@@ -43,6 +43,9 @@ namespace ActiveMQExplorer.ViewModels
             _mQListener = mQListener;
             IsListenerAvailable = true;
 
+            // set Publisher Mode, add to setting GUI later
+            _mQPublisher.PublisherMode = PublisherMode.ObjectMode;
+
             MessagesDataList = new List<MessageData>();
 
             MQModelsHandler.CurrentPublisherMQModel.Host = Properties.Settings.Default.host;

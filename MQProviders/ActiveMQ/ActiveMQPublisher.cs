@@ -14,6 +14,8 @@ namespace MQProviders.ActiveMQ
         private IMQModel _publisherModel;
         private IConnectionFactory _connectionFactory;
 
+        public PublisherMode PublisherMode { get; set; }
+
         public ActiveMQPublisher()
         {
             _publisherModel = new PublisherMQModel();
@@ -49,7 +51,19 @@ namespace MQProviders.ActiveMQ
                                     return "Null Message Producer!";
 
                                 messageProducer.DeliveryMode = MsgDeliveryMode.NonPersistent;
-                                messageProducer.Send(session.CreateTextMessage(_publisherModel.Data));
+
+                                if (PublisherMode == PublisherMode.ObjectMode)
+                                {
+                                    IObjectMessage message = session.CreateObjectMessage(_publisherModel.Data);
+                                    messageProducer.Send(message);
+                                }
+                                else if (PublisherMode == PublisherMode.TextMode)
+                                {
+                                    ITextMessage message = session.CreateTextMessage(_publisherModel.Data);
+                                    messageProducer.Send(message);
+                                }
+                                else
+                                    return "Cannot determine the Punisher Mode!";
                             }
                         }     
                     }

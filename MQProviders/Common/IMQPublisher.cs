@@ -10,5 +10,13 @@ namespace MQProviders.Common
         IMQModel GetPublisherModel();
         Task<ISet<string>> GetQueueList();
         string TryConnect();
+        PublisherMode PublisherMode { get; set; }
+    }
+
+
+    public enum PublisherMode
+    {
+        ObjectMode = 1,
+        TextMode = 2
     }
 }
