@@ -61,6 +61,8 @@ namespace ActiveMQExplorer.ViewModels
             _mQPublisher.SetPublisherModel(MQModelsHandler.CurrentPublisherMQModel);
             _mQListener.SetListenerModel(MQModelsHandler.CurrentListenerMQModel);
 
+            _log.Debug($"Publisher Mode: {_mQPublisher.PublisherMode}");
+            
             _log.Debug($"Current Host: {_mQPublisher.GetPublisherModel().Host}");
             _log.Debug($"Current Port: {_mQPublisher.GetPublisherModel().Port}");
             _log.Debug($"Current UserName: {_mQPublisher.GetPublisherModel().UserName}");
