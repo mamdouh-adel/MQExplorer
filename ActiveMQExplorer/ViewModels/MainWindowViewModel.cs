@@ -175,6 +175,7 @@ namespace ActiveMQExplorer.ViewModels
             if(string.IsNullOrWhiteSpace(MQDestination))
             {
                 MessageBox.Show("Please set or choose valid Queue", "Error", MessageBoxButton.OK, MessageBoxImage.Exclamation, MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
+                IsReadyToSend = true;
                 return;
             }
 
