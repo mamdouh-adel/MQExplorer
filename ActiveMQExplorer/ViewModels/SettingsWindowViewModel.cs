@@ -1,4 +1,5 @@
-﻿using Caliburn.Micro;
+﻿using ActiveMQExplorer.Common;
+using Caliburn.Micro;
 using MQProviders.ActiveMQ;
 using MQProviders.Common;
 using System;
@@ -100,6 +101,29 @@ namespace ActiveMQExplorer.ViewModels
             }
         }
 
+        private bool _dumpFilesChk;
+        public bool DumpFilesChk
+        {
+            get => _dumpFilesChk;
+            set
+            {
+                _dumpFilesChk = value;
+                NotifyOfPropertyChange();
+            }
+        }
+
+        private string _dumpDirectory;
+        public string DumpDirectory
+        {
+            get => _dumpDirectory;
+            set
+            {
+                _dumpDirectory = value;
+                NotifyOfPropertyChange();
+            }
+        }
+
+
         public List<string> PublisherModeList
         {
             get
@@ -147,6 +171,12 @@ namespace ActiveMQExplorer.ViewModels
             UserName = Properties.Settings.Default.user_name;
             Password = Properties.Settings.Default.password;
             PublisherModeText = Enum.GetName(typeof(PublisherMode), Properties.Settings.Default.publisher_mode);
+
+            DumpFilesChk = Properties.Settings.Default.is_in_dump_mode;
+            DumpDirectory = Properties.Settings.Default.dump_dir;
+
+            DumpFilesHandler.IsInDumpFilesMode = DumpFilesChk;
+            DumpFilesHandler.DumpDirectory = DumpDirectory;
         }
 
         public ICommand Connect
@@ -205,6 +235,11 @@ namespace ActiveMQExplorer.ViewModels
                 Properties.Settings.Default.user_name = MQModelsHandler.CurrentPublisherMQModel.UserName;
                 Properties.Settings.Default.password = MQModelsHandler.CurrentPublisherMQModel.Password;
                 Properties.Settings.Default.publisher_mode = (int)MQModelsHandler.CurrentPublisherMQModel.PublisherMode;
+                Properties.Settings.Default.is_in_dump_mode = DumpFilesChk;
+                Properties.Settings.Default.dump_dir = DumpDirectory;
+
+                DumpFilesHandler.IsInDumpFilesMode = DumpFilesChk;
+                DumpFilesHandler.DumpDirectory = DumpDirectory;
 
                 Properties.Settings.Default.Save();
                 Properties.Settings.Default.Reload();
@@ -218,6 +253,8 @@ namespace ActiveMQExplorer.ViewModels
                 _log.Debug($"Configuration: Port: {Properties.Settings.Default.port}");
                 _log.Debug($"Configuration: UserName: {Properties.Settings.Default.user_name}");
                 _log.Debug($"Configuration: Password: {Properties.Settings.Default.password}");
+                _log.Debug($"Configuration: Is In Dump Mode: {Properties.Settings.Default.is_in_dump_mode}");
+                _log.Debug($"Configuration: Dump Directory: {Properties.Settings.Default.dump_dir}");
             }             
             else
             {
@@ -229,10 +266,39 @@ namespace ActiveMQExplorer.ViewModels
                 _log.Error($"Configuration: Port: {Properties.Settings.Default.port}");
                 _log.Error($"Configuration: UserName: {Properties.Settings.Default.user_name}");
                 _log.Error($"Configuration: Password: {Properties.Settings.Default.password}");
+                _log.Error($"Configuration: Is In Dump Mode: {Properties.Settings.Default.is_in_dump_mode}");
+                _log.Error($"Configuration: Dump Directory: {Properties.Settings.Default.dump_dir}");
             }
 
             ConnectStatus = result;
             IsReadyToTryConnect = true;
+        }
+
+
+        public ICommand ChooseDumpDir
+        {
+            get { return new DelegateCommand(ChooseDumpDirAction); }
+        }
+
+        private void ChooseDumpDirAction(object sender)
+        {
+            var dialog = new Microsoft.Win32.SaveFileDialog();
+            dialog.InitialDirectory = DumpDirectory;
+            dialog.Title = "Select a Directory";
+            dialog.Filter = "Directory|*.this.directory";
+            dialog.FileName = "select";
+            if (dialog.ShowDialog() == true)
+            {
+                string path = dialog.FileName;
+                path = path.Replace("\\select.this.directory", "");
+                path = path.Replace(".this.directory", "");
+                if (!System.IO.Directory.Exists(path))
+                {
+                    System.IO.Directory.CreateDirectory(path);
+                }
+
+                DumpDirectory = path;
+            }
         }
 
         public ICommand ListenerConnect

@@ -86,6 +86,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Bootstrapper.cs" />
+    <Compile Include="Common\DumpFilesHandler.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="MQModule.cs" />
     <Compile Include="ScreensManager.cs" />

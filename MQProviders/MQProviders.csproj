@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActiveMQ\ActiveMQListener.cs" />
+    <Compile Include="ActiveMQ\ActiveMQMessageProxy.cs" />
     <Compile Include="ActiveMQ\ActiveMQPublisher.cs" />
     <Compile Include="ActiveMQ\ActiveMQModel.cs" />
     <Compile Include="ActiveMQ\MQModelsHandler.cs" />

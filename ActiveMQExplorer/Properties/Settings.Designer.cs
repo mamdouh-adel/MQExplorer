@@ -82,5 +82,29 @@ namespace ActiveMQExplorer.Properties {
                 this["publisher_mode"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool is_in_dump_mode {
+            get {
+                return ((bool)(this["is_in_dump_mode"]));
+            }
+            set {
+                this["is_in_dump_mode"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string dump_dir {
+            get {
+                return ((string)(this["dump_dir"]));
+            }
+            set {
+                this["dump_dir"] = value;
+            }
+        }
     }
 }

@@ -1,8 +1,8 @@
-﻿using ActiveMQExplorer.Views;
+﻿using ActiveMQExplorer.Common;
+using ActiveMQExplorer.Views;
 using Caliburn.Micro;
 using MQProviders.ActiveMQ;
 using MQProviders.Common;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -59,6 +59,9 @@ namespace ActiveMQExplorer.ViewModels
             MQModelsHandler.CurrentListenerMQModel.UserName = Properties.Settings.Default.user_name;
             MQModelsHandler.CurrentListenerMQModel.Password = Properties.Settings.Default.password;
 
+            DumpFilesHandler.IsInDumpFilesMode = Properties.Settings.Default.is_in_dump_mode;
+            DumpFilesHandler.DumpDirectory = Properties.Settings.Default.dump_dir;
+
             _mQPublisher.SetPublisherModel(MQModelsHandler.CurrentPublisherMQModel);
             _mQListener.SetListenerModel(MQModelsHandler.CurrentListenerMQModel);
 
@@ -68,6 +71,8 @@ namespace ActiveMQExplorer.ViewModels
             _log.Debug($"Current Port: {_mQPublisher.GetPublisherModel().Port}");
             _log.Debug($"Current UserName: {_mQPublisher.GetPublisherModel().UserName}");
             _log.Debug($"Current Password: {_mQPublisher.GetPublisherModel().Password}");
+            _log.Debug($"Current Is In Dump Files Mode: {DumpFilesHandler.IsInDumpFilesMode}");
+            _log.Debug($"Current Dump Directory: {DumpFilesHandler.DumpDirectory}");
 
             Task.Factory.StartNew(() => SetQueueListBox());
         }
@@ -230,7 +235,7 @@ namespace ActiveMQExplorer.ViewModels
 
             Task.Factory.StartNew(() =>
             {
-                Thread.Sleep(5000);
+                Thread.Sleep(3000);
                 SendStatus = string.Empty;
             });
         }
@@ -306,23 +311,29 @@ namespace ActiveMQExplorer.ViewModels
             _stratRetreiveMessages = true;
             while (_stratRetreiveMessages)
             {
-                bool haveMessages = _mQListener.ReadMessages.TryDequeue(out string message);
+                bool haveMessages = _mQListener.ReadMessages.TryDequeue(out ActiveMQMessageProxy message);
                 if (haveMessages)
                 {
-                    _log.Debug($"Messages found, Data: {message}");
+                    _log.Debug($"Messages found, Id: {message.MessageId}\n,Data: {message.Content}");
 
-                    if(string.IsNullOrEmpty(message))
+                    if(string.IsNullOrEmpty(message.Content))
                         _log.Error("Null incoming message!");
 
                     Application.Current.Dispatcher.Invoke(DispatcherPriority.DataBind, new ThreadStart(delegate
                     {
                         List<MessageData> newMessageDataList = new List<MessageData>(MessagesDataList)
                         {
-                            new MessageData { Data = message }
+                            new MessageData { Data = message.Content }
                         };
 
                         MessagesDataList = newMessageDataList;
                     }));
+
+                    if (DumpFilesHandler.IsInDumpFilesMode)
+                    {
+                        string result = DumpFilesHandler.SaveDumpFile(message.MessageId, message.Content);
+                        _log.Debug(result);
+                    }
                 }
 
                 Thread.Sleep(100);

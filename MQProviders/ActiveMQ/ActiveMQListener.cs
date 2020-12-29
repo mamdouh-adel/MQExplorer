@@ -21,7 +21,7 @@ namespace MQProviders.ActiveMQ
         {
             _listenerModel = new ActiveMQModel();
             
-            ReadMessages = new ConcurrentQueue<string>();
+            ReadMessages = new ConcurrentQueue<ActiveMQMessageProxy>();
         }
 
         public string StartListen()
@@ -77,15 +77,15 @@ namespace MQProviders.ActiveMQ
                 IMessage message = consumer.Receive();
                 if (message is IObjectMessage objectMessage)
                 {
-                    ReadMessages.Enqueue(objectMessage.Body as string);
+                    ReadMessages.Enqueue(new ActiveMQMessageProxy(objectMessage.NMSMessageId, objectMessage.Body as string));
                 }
                 else if (message is ITextMessage textMessage)
                 {
-                    ReadMessages.Enqueue(textMessage.Text);
+                    ReadMessages.Enqueue(new ActiveMQMessageProxy(textMessage.NMSMessageId, textMessage.Text));
                 }
                 else if (message is IStreamMessage streamMessage)
                 {
-                    ReadMessages.Enqueue(streamMessage.ReadString());
+                    ReadMessages.Enqueue(new ActiveMQMessageProxy(streamMessage.NMSMessageId, streamMessage.ReadString()));
                 }
                 else if (message is IBytesMessage bytesMessage)
                 {
@@ -95,15 +95,15 @@ namespace MQProviders.ActiveMQ
                         msg.Add(bytesMessage.ReadByte());
                     }
                     string messageContent = Encoding.ASCII.GetString(msg.ToArray(), 0, msg.Count);
-                    ReadMessages.Enqueue(messageContent);
+                    ReadMessages.Enqueue(new ActiveMQMessageProxy(bytesMessage.NMSMessageId, messageContent));
                 }
                 else if (message is IMapMessage mapMessage)
                 {
                     string msg = mapMessage.Body.GetString("key");       
-                    ReadMessages.Enqueue(msg);
+                    ReadMessages.Enqueue(new ActiveMQMessageProxy(mapMessage.NMSMessageId, msg));
                 }
                 else
-                    ReadMessages.Enqueue(string.Empty);
+                    ReadMessages.Enqueue(new ActiveMQMessageProxy(string.Empty, string.Empty));
 
                 ++_listenerModel.Messages;
 
@@ -119,7 +119,7 @@ namespace MQProviders.ActiveMQ
             _startListen = false;
         }
 
-        public ConcurrentQueue<string> ReadMessages { get; }
+        public ConcurrentQueue<ActiveMQMessageProxy> ReadMessages { get; }
 
         public string TryConnect()
         {
