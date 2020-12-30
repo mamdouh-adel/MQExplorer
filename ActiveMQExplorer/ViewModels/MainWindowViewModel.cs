@@ -3,7 +3,6 @@ using ActiveMQExplorer.Views;
 using Caliburn.Micro;
 using MQProviders.ActiveMQ;
 using MQProviders.Common;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
