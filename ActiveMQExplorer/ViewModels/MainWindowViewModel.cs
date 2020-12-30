@@ -3,7 +3,9 @@ using ActiveMQExplorer.Views;
 using Caliburn.Micro;
 using MQProviders.ActiveMQ;
 using MQProviders.Common;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -59,8 +61,11 @@ namespace ActiveMQExplorer.ViewModels
             MQModelsHandler.CurrentListenerMQModel.UserName = Properties.Settings.Default.user_name;
             MQModelsHandler.CurrentListenerMQModel.Password = Properties.Settings.Default.password;
 
-            DumpFilesHandler.IsInDumpFilesMode = Properties.Settings.Default.is_in_dump_mode;
-            DumpFilesHandler.DumpDirectory = Properties.Settings.Default.dump_dir;
+            MQFilesHandler.IsInDumpFilesMode = Properties.Settings.Default.is_in_dump_mode;
+            MQFilesHandler.DumpDirectory = Properties.Settings.Default.dump_dir;
+
+            SourceDirectory = Properties.Settings.Default.send_by_dir;
+            MQFilesHandler.SourceDirectory = SourceDirectory;
 
             _mQPublisher.SetPublisherModel(MQModelsHandler.CurrentPublisherMQModel);
             _mQListener.SetListenerModel(MQModelsHandler.CurrentListenerMQModel);
@@ -71,8 +76,9 @@ namespace ActiveMQExplorer.ViewModels
             _log.Debug($"Current Port: {_mQPublisher.GetPublisherModel().Port}");
             _log.Debug($"Current UserName: {_mQPublisher.GetPublisherModel().UserName}");
             _log.Debug($"Current Password: {_mQPublisher.GetPublisherModel().Password}");
-            _log.Debug($"Current Is In Dump Files Mode: {DumpFilesHandler.IsInDumpFilesMode}");
-            _log.Debug($"Current Dump Directory: {DumpFilesHandler.DumpDirectory}");
+            _log.Debug($"Current Is In Dump Files Mode: {MQFilesHandler.IsInDumpFilesMode}");
+            _log.Debug($"Current Dump Directory: {MQFilesHandler.DumpDirectory}");
+            _log.Debug($"Current Source Directory: {MQFilesHandler.SourceDirectory}");
 
             Task.Factory.StartNew(() => SetQueueListBox());
         }
@@ -180,6 +186,7 @@ namespace ActiveMQExplorer.ViewModels
         private void SendMessageToMQ(object sender)
         {
             IsReadyToSend = false;
+            SendStatus = string.Empty;
 
             _log.Debug($"Start send message to {MQDestination}");
 
@@ -329,9 +336,9 @@ namespace ActiveMQExplorer.ViewModels
                         MessagesDataList = newMessageDataList;
                     }));
 
-                    if (DumpFilesHandler.IsInDumpFilesMode)
+                    if (MQFilesHandler.IsInDumpFilesMode)
                     {
-                        string result = DumpFilesHandler.SaveDumpFile(message.MessageId, message.Content);
+                        string result = MQFilesHandler.SaveDumpFile(message.MessageId, message.Content);
                         _log.Debug(result);
                     }
                 }
@@ -360,6 +367,8 @@ namespace ActiveMQExplorer.ViewModels
 
         private void OnQueueSelectedChangedAction(object sender)
         {
+            IsReadyToSendBySourceDirectory = string.IsNullOrWhiteSpace(QueueText) == false && IsSourceDirectoryExist;
+
             if (_currentQueue != QueueText)
                 MessagesDataList = new List<MessageData>();
 
@@ -416,6 +425,161 @@ namespace ActiveMQExplorer.ViewModels
                 ListenText = "Stopped";
             }
         }
+        #endregion
+
+        #region Send from Directory
+
+        private string _sourceDirectory;
+        public string SourceDirectory
+        {
+            get => _sourceDirectory;
+            set
+            {
+                _sourceDirectory = value;
+
+                if (string.IsNullOrWhiteSpace(_sourceDirectory))
+                    IsSourceDirectoryExist = false;
+                else
+                    IsSourceDirectoryExist = true;
+
+                NotifyOfPropertyChange();
+            }
+        }
+
+        private bool _isSourceDirectoryExist;
+        public bool IsSourceDirectoryExist
+        {
+            get => _isSourceDirectoryExist;
+            set
+            {
+                _isSourceDirectoryExist = value;
+                NotifyOfPropertyChange();
+            }
+        }
+
+        private string _sendByDirStatus;
+        public string SendByDirStatus
+        {
+            get => _sendByDirStatus;
+            set
+            {
+                _sendByDirStatus = value;
+                NotifyOfPropertyChange();
+            }
+        }
+
+        private Brush _sendByDirStatusColor;
+        public Brush SendByDirStatusColor
+        {
+            get => _sendByDirStatusColor;
+            set
+            {
+                _sendByDirStatusColor = value;
+                NotifyOfPropertyChange();
+            }
+        }
+
+        private bool _isReadyToSendBySourceDirectory;
+        public bool IsReadyToSendBySourceDirectory
+        {
+            get => _isReadyToSendBySourceDirectory;
+            set
+            {
+                _isReadyToSendBySourceDirectory = value;
+                NotifyOfPropertyChange();
+            }
+        }
+
+        public ICommand ChooseSourceDirectory
+        {
+            get { return new DelegateCommand(ChooseSourceDirectoryAction); }
+        }
+
+        private void ChooseSourceDirectoryAction(object sender)
+        {
+            var dialog = new Microsoft.Win32.SaveFileDialog();
+            dialog.InitialDirectory = SourceDirectory;
+            dialog.Title = "Select Source Directory";
+            dialog.Filter = "Directory|*.this.directory";
+            dialog.FileName = "select";
+            if (dialog.ShowDialog() == true)
+            {
+                string path = dialog.FileName;
+                path = path.Replace("\\select.this.directory", "");
+                path = path.Replace(".this.directory", "");
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
+
+                SourceDirectory = path;
+
+                Properties.Settings.Default.send_by_dir = SourceDirectory;
+
+                Properties.Settings.Default.Save();
+                Properties.Settings.Default.Reload();
+
+                _log.Debug($"Configuration: Publisher Source Directory: {Properties.Settings.Default.send_by_dir}");
+
+                IsReadyToSendBySourceDirectory = string.IsNullOrWhiteSpace(QueueText) == false && IsSourceDirectoryExist;
+            }
+        }
+
+        public ICommand SendByDirectory
+        {
+            get { return new DelegateCommand(SendByDirectoryAction); }
+        }
+
+        private void SendByDirectoryAction(object sender)
+        {
+            SendByDirStatus = string.Empty;
+
+            if (IsSourceDirectoryExist == false)
+            {
+                _log.Error("Source directory not found!");
+                return;
+            }
+
+            var result = ReadAndSendFilesFromDirectory();
+            if (result.isSuccess)
+            {
+                _log.Debug(result.log);
+            }           
+            else
+                _log.Error(result.log);
+
+            SendByDirStatus = result.log;
+        }
+
+        private (bool isSuccess, string log, string[] filesContent) ReadAndSendFilesFromDirectory()
+        {
+            DirectoryInfo srcDirInfo = new DirectoryInfo(SourceDirectory);
+            FileInfo[] files = srcDirInfo.GetFiles("*.txt");
+            if (files == null || files.Length <= 0)
+                return (isSuccess: false, log: $"There is no .txt files in: {SourceDirectory}", filesContent: null);
+
+            string[] filesContent = new string[files.Length];
+
+            foreach (FileInfo fileInfo in files)
+            {
+                var result = MQFilesHandler.ReadFile(fileInfo);
+                _log.Debug(result.log);
+                SendByDirStatus = result.log;
+
+                if (result.isSuccess)
+                {
+                    MQModelsHandler.CurrentPublisherMQModel.Destination = MQDestination;
+                    MQModelsHandler.CurrentPublisherMQModel.Data = result.fileContent;
+                    _mQPublisher.SetPublisherModel(MQModelsHandler.CurrentPublisherMQModel);
+
+                    string sendResult = _mQPublisher.StartTransaction();
+                    SendByDirStatus = sendResult;
+                }
+            }
+
+            return (isSuccess: true, log: "Success", filesContent);
+        }
+
         #endregion
     }
 }

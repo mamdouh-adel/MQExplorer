@@ -175,8 +175,8 @@ namespace ActiveMQExplorer.ViewModels
             DumpFilesChk = Properties.Settings.Default.is_in_dump_mode;
             DumpDirectory = Properties.Settings.Default.dump_dir;
 
-            DumpFilesHandler.IsInDumpFilesMode = DumpFilesChk;
-            DumpFilesHandler.DumpDirectory = DumpDirectory;
+            MQFilesHandler.IsInDumpFilesMode = DumpFilesChk;
+            MQFilesHandler.DumpDirectory = DumpDirectory;
         }
 
         public ICommand Connect
@@ -238,8 +238,8 @@ namespace ActiveMQExplorer.ViewModels
                 Properties.Settings.Default.is_in_dump_mode = DumpFilesChk;
                 Properties.Settings.Default.dump_dir = DumpDirectory;
 
-                DumpFilesHandler.IsInDumpFilesMode = DumpFilesChk;
-                DumpFilesHandler.DumpDirectory = DumpDirectory;
+                MQFilesHandler.IsInDumpFilesMode = DumpFilesChk;
+                MQFilesHandler.DumpDirectory = DumpDirectory;
 
                 Properties.Settings.Default.Save();
                 Properties.Settings.Default.Reload();
@@ -284,7 +284,7 @@ namespace ActiveMQExplorer.ViewModels
         {
             var dialog = new Microsoft.Win32.SaveFileDialog();
             dialog.InitialDirectory = DumpDirectory;
-            dialog.Title = "Select a Directory";
+            dialog.Title = "Select Dump Directory";
             dialog.Filter = "Directory|*.this.directory";
             dialog.FileName = "select";
             if (dialog.ShowDialog() == true)

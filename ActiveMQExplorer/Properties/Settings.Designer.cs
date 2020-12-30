@@ -106,5 +106,17 @@ namespace ActiveMQExplorer.Properties {
                 this["dump_dir"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string send_by_dir {
+            get {
+                return ((string)(this["send_by_dir"]));
+            }
+            set {
+                this["send_by_dir"] = value;
+            }
+        }
     }
 }

@@ -94,7 +94,7 @@ namespace MQProviders.ActiveMQ
                     {
                         msg.Add(bytesMessage.ReadByte());
                     }
-                    string messageContent = Encoding.ASCII.GetString(msg.ToArray(), 0, msg.Count);
+                    string messageContent = Encoding.UTF8.GetString(msg.ToArray(), 0, msg.Count);
                     ReadMessages.Enqueue(new ActiveMQMessageProxy(bytesMessage.NMSMessageId, messageContent));
                 }
                 else if (message is IMapMessage mapMessage)

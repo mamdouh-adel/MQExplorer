@@ -70,7 +70,7 @@ namespace MQProviders.ActiveMQ
                                 }
                                 else if (_publisherModel.PublisherMode == PublisherMode.BytesMode)
                                 {
-                                    IBytesMessage bytesMessage = session.CreateBytesMessage(Encoding.ASCII.GetBytes(_publisherModel.Data));
+                                    IBytesMessage bytesMessage = session.CreateBytesMessage(Encoding.UTF8.GetBytes(_publisherModel.Data));
                                     messageProducer.Send(bytesMessage);
                                 }
                                 else if (_publisherModel.PublisherMode == PublisherMode.MapMode)

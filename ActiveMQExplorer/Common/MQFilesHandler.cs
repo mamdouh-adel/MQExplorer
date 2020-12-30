@@ -4,9 +4,10 @@ using System.Text;
 
 namespace ActiveMQExplorer.Common
 {
-    public class DumpFilesHandler
+    public class MQFilesHandler
     {
         public static string DumpDirectory { get; set; }
+        public static string SourceDirectory { get; set; }
         public static bool IsInDumpFilesMode { get; set; }
 
 
@@ -44,6 +45,34 @@ namespace ActiveMQExplorer.Common
             }
 
             return $"Successfully saved file: {fileName}.txt at directory: {DumpDirectory}";
+        }
+
+        public static (bool isSuccess, string log, string fileContent) ReadFile(FileInfo fileInfo)
+        {
+            if(fileInfo == null)
+                return (isSuccess: false, log: "Null FileInfo", fileContent: null);
+
+            if (fileInfo.Exists == false)
+                return (isSuccess: false, log: $"File: {fileInfo.FullName} not found!", fileContent: null);
+
+            string fileContent = string.Empty;
+            try
+            {           
+                using (StreamReader stream = fileInfo.OpenText())
+                {
+                    string line = string.Empty;
+                    while ((line = stream.ReadLine()) != null)
+                    {
+                        fileContent += line + "\n";
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                return (isSuccess: false, log: $"Error: {ex.Message}", fileContent);
+            }   
+
+            return (isSuccess: true, log: $"Successfully loaded content of file: {fileInfo.FullName}", fileContent);
         }
     }
 }
