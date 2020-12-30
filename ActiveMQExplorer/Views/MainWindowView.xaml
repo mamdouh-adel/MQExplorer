@@ -25,7 +25,13 @@
             <TabItem Header="Publisher">
                 <Grid Background="#f7fafe">
                     <Label Name="pqueue" Content="Queue" HorizontalAlignment="Left" Height="24" Margin="270,10,0,0" VerticalAlignment="Top" Width="100"/>
-                    <ComboBox x:Name="pququeList" IsEditable="True" HorizontalAlignment="Left" Height="24" Margin="322,10,0,0" VerticalAlignment="Top" Width="160" Text="{Binding QueueText}" ItemsSource="{Binding Queues}" />
+                    <ComboBox x:Name="pququeList" IsEditable="True" HorizontalAlignment="Left" Height="24" Margin="322,10,0,0" VerticalAlignment="Top" Width="160" Text="{Binding QueueTextPublisher}" ItemsSource="{Binding Queues}" >
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="SelectionChanged">
+                                <i:InvokeCommandAction Command="{Binding OnQueueSelectedChangedPublisher}"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </ComboBox>
                     <TextBox x:Name="mqDataBox" HorizontalAlignment="Left" Height="300" Margin="65,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="640" AcceptsReturn="True" VerticalScrollBarVisibility="Visible" Text="{Binding MQData}"/>
                     <Button x:Name="sendBtn" Foreground="#1A5276" FontWeight="Bold" Content="Send" HorizontalAlignment="Left" Margin="330,420,0,0" VerticalAlignment="Top" Width="75" Command="{Binding Send}" IsEnabled="{Binding IsReadyToSend}"/>
                     <Label x:Name="status" Content="{Binding SendStatus}" HorizontalAlignment="Left" Margin="120,460,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.456,-0.342" FontWeight="Bold" Foreground="{Binding SendStatusColor}"/>
@@ -35,28 +41,28 @@
                 <Grid Background="#f7fbf2">
                     <Button Content="Choose Source Directory" FontWeight="SemiBold" Foreground="#1A5276" HorizontalAlignment="Left" Margin="32,56,0,0" VerticalAlignment="Top" Width="159" Command="{Binding ChooseSourceDirectory}"/>
                     <Label Content="{Binding SourceDirectory}" HorizontalAlignment="Left" Margin="32,100,0,0" VerticalAlignment="Top" FontStretch="UltraExpanded" FontWeight="SemiBold" Foreground="#2E86C1" RenderTransformOrigin="0.4,0.6"/>
-                    <ComboBox x:Name="sfququeList" IsEditable="True" HorizontalAlignment="Left" Height="24" Margin="32,177,0,0" VerticalAlignment="Top" Width="160" Text="{Binding QueueText}" ItemsSource="{Binding Queues}" IsEnabled="{Binding IsListenerAvailable}" >
+                    <ComboBox x:Name="sfququeList" IsEditable="True" HorizontalAlignment="Left" Height="24" Margin="32,177,0,0" VerticalAlignment="Top" Width="160" Text="{Binding QueueTextSendFromDir}" ItemsSource="{Binding Queues}" IsEnabled="{Binding IsReadyToSendFromDir}" >
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="SelectionChanged">
-                                <i:InvokeCommandAction Command="{Binding OnQueueSelectedChanged}"/>
+                                <i:InvokeCommandAction Command="{Binding OnQueueSelectedChangedSendFromDir}"/>
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </ComboBox>
                     <Button Content="Send" HorizontalAlignment="Left" Margin="210,180,0,0" VerticalAlignment="Top" Width="96" FontStretch="UltraExpanded" FontWeight="Bold" Foreground="#1A5276" Command="{Binding SendByDirectory}" IsEnabled="{Binding IsReadyToSendBySourceDirectory}"/>
-                    <ProgressBar HorizontalAlignment="Left" Height="20" Margin="32,259,0,0" VerticalAlignment="Top" Width="642" Minimum="0" Maximum="100" Value="{Binding SendFromDirCurrentValue}" Visibility="{Binding IsSendFromDirStarted}"/>
-                    <Label Content="{Binding SendByDirStatus}" HorizontalAlignment="Left" Margin="32,336,0,0" VerticalAlignment="Top" FontWeight="Medium" Foreground="{Binding SendByDirStatusColor}" />
+                    <ProgressBar HorizontalAlignment="Left" Height="20" Margin="32,299,0,0" VerticalAlignment="Top" Width="642" Minimum="0" Maximum="{Binding SendFromDirMaxValue}" Value="{Binding SendFromDirCurrentValue}" Visibility="{Binding IsSendFromVisible}"/>
+                    <Label Content="{Binding SendByDirStatus}" HorizontalAlignment="Left" Margin="32,276,0,0" VerticalAlignment="Top" FontWeight="Medium" Foreground="{Binding SendByDirStatusColor}" />
                 </Grid>
             </TabItem>
             <TabItem Header="Listener">
                 <Grid Background="#f3f8fe">
                     <StackPanel>
-                        <ToggleButton x:Name="tb" Content="{Binding ListenText}" Command="{Binding ListenHandler}" CommandParameter="{Binding IsChecked,RelativeSource={RelativeSource Self}}" Margin="12" Width="108" HorizontalAlignment="Right" />
+                        <ToggleButton x:Name="tb" Content="{Binding ListenText}" Command="{Binding ListenHandler}" CommandParameter="{Binding IsChecked,RelativeSource={RelativeSource Self}}" Margin="12" Width="108" HorizontalAlignment="Right"/>
                     </StackPanel>
                     <Label Name="squeue" Content="Queue" HorizontalAlignment="Left" Height="24" Margin="270,10,0,0" VerticalAlignment="Top" Width="100"/>
-                    <ComboBox x:Name="sququeList" IsEditable="True" HorizontalAlignment="Left" Height="24" Margin="322,10,0,0" VerticalAlignment="Top" Width="160" Text="{Binding QueueText}" ItemsSource="{Binding Queues}" IsEnabled="{Binding IsListenerAvailable}" >
+                    <ComboBox x:Name="sququeList" IsEditable="True" HorizontalAlignment="Left" Height="24" Margin="322,10,0,0" VerticalAlignment="Top" Width="160" Text="{Binding QueueTextListener}" ItemsSource="{Binding Queues}" IsEnabled="{Binding IsListenerAvailable}" >
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="SelectionChanged">
-                                <i:InvokeCommandAction Command="{Binding OnQueueSelectedChanged}"/>
+                                <i:InvokeCommandAction Command="{Binding OnQueueSelectedChangedListener}"/>
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </ComboBox>

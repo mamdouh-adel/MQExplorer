@@ -14,6 +14,11 @@ namespace ActiveMQExplorer.ViewModels
 
         public string Data { get; set; }
 
+        public static void ResetId()
+        {
+            _CurrentId = 0;
+        }
+
         public string BriefData
         {
             get
