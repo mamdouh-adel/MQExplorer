@@ -118,5 +118,17 @@ namespace ActiveMQExplorer.Properties {
                 this["send_by_dir"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string file_extension {
+            get {
+                return ((string)(this["file_extension"]));
+            }
+            set {
+                this["file_extension"] = value;
+            }
+        }
     }
 }

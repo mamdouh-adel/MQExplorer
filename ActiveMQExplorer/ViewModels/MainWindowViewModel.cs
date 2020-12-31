@@ -27,7 +27,7 @@ namespace ActiveMQExplorer.ViewModels
         private bool _isListenerRun;
       //  private string _currentPublishQueue;
         private string _currentListenQueue;
-        private string _currentSendFromDirQueue;
+     //   private string _currentSendFromDirQueue;
 
         public MainWindowViewModel()
         {
@@ -214,8 +214,8 @@ namespace ActiveMQExplorer.ViewModels
                     SendStatus = "Please set or choose valid Queue";
                 else
                 {
-                    _currentSendFromDirQueue = QueueTextSendFromDir;
-                    IsReadyToSendBySourceDirectory = string.IsNullOrWhiteSpace(_currentSendFromDirQueue) == false && IsSourceDirectoryExist;
+                  //  _currentSendFromDirQueue = QueueTextSendFromDir;
+                    IsReadyToSendBySourceDirectory = string.IsNullOrWhiteSpace(_queueTextSendFromDir) == false && IsSourceDirectoryExist;
                     SendStatus = string.Empty;
                 }
                 NotifyOfPropertyChange();
@@ -380,7 +380,7 @@ namespace ActiveMQExplorer.ViewModels
 
                     if (MQFilesHandler.IsInDumpFilesMode)
                     {
-                        string result = MQFilesHandler.SaveDumpFile(message.MessageId, message.Content);
+                        string result = MQFilesHandler.SaveDumpFile(message.MessageId, message.Content, MQFilesHandler.FileExtention);
                         _log.Debug(result);
                     }
                 }
@@ -402,43 +402,43 @@ namespace ActiveMQExplorer.ViewModels
             }));
         }
 
-        public ICommand OnQueueSelectedChangedPublisher
-        {
-            get { return new DelegateCommand(OnQueueSelectedChangedPublisherAction); }
-        }
+        //public ICommand OnQueueSelectedChangedPublisher
+        //{
+        //    get { return new DelegateCommand(OnQueueSelectedChangedPublisherAction); }
+        //}
 
-        private void OnQueueSelectedChangedPublisherAction(object sender)
-        {
-           // _currentPublishQueue = QueueTextPublisher;
-        }
+        //private void OnQueueSelectedChangedPublisherAction(object sender)
+        //{
+        //    _currentPublishQueue = QueueTextPublisher;
+        //}
 
-        public ICommand OnQueueSelectedChangedListener
-        {
-            get { return new DelegateCommand(OnQueueSelectedChangedListenerAction); }
-        }
+        //public ICommand OnQueueSelectedChangedListener
+        //{
+        //    get { return new DelegateCommand(OnQueueSelectedChangedListenerAction); }
+        //}
 
-        private void OnQueueSelectedChangedListenerAction(object sender)
-        {
-            //if (_currentListenQueue != QueueTextListener)
-            //{
-            //    MessageData.ResetId();
-            //    MessagesDataList = new List<MessageData>();
-            //}
+        //private void OnQueueSelectedChangedListenerAction(object sender)
+        //{
+        //    if (_currentListenQueue != QueueTextListener)
+        //    {
+        //        MessageData.ResetId();
+        //        MessagesDataList = new List<MessageData>();
+        //    }
 
-            //_currentListenQueue = QueueTextListener;
-        }
+        //    _currentListenQueue = QueueTextListener;
+        //}
 
-        public ICommand OnQueueSelectedChangedSendFromDir
-        {
-            get { return new DelegateCommand(OnQueueSelectedChangedSendFromDirAction); }
-        }
+        //public ICommand OnQueueSelectedChangedSendFromDir
+        //{
+        //    get { return new DelegateCommand(OnQueueSelectedChangedSendFromDirAction); }
+        //}
 
-        private void OnQueueSelectedChangedSendFromDirAction(object sender)
-        {
-            //_currentSendFromDirQueue = QueueTextSendFromDir;
+        //private void OnQueueSelectedChangedSendFromDirAction(object sender)
+        //{
+        //    _currentSendFromDirQueue = QueueTextSendFromDir;
 
-            //IsReadyToSendBySourceDirectory = string.IsNullOrWhiteSpace(_currentSendFromDirQueue) == false && IsSourceDirectoryExist;
-        }
+        //    IsReadyToSendBySourceDirectory = string.IsNullOrWhiteSpace(_currentSendFromDirQueue) == false && IsSourceDirectoryExist;
+        //}
 
         private void HandleListenToMQ(object isListenerChecked)
         {
@@ -659,7 +659,7 @@ namespace ActiveMQExplorer.ViewModels
                 return;
             }
 
-            var result = ReadAndSendFilesFromDirectory();
+            var result = ReadAndSendFilesFromDirectory(MQFilesHandler.FileExtention);
             if (result.isSuccess)
             {
                 _log.Debug(result.log);
@@ -677,12 +677,12 @@ namespace ActiveMQExplorer.ViewModels
             IsReadyToSendFromDir = true;
         }
 
-        private (bool isSuccess, string log, string[] filesContent) ReadAndSendFilesFromDirectory()
+        private (bool isSuccess, string log, string[] filesContent) ReadAndSendFilesFromDirectory(string fileExtension)
         {
             DirectoryInfo srcDirInfo = new DirectoryInfo(SourceDirectory);
-            FileInfo[] filesInfo = srcDirInfo.GetFiles("*.txt");
+            FileInfo[] filesInfo = srcDirInfo.GetFiles($"*.{fileExtension}");
             if (filesInfo == null || filesInfo.Length <= 0)
-                return (isSuccess: false, log: $"There is no .txt files in: {SourceDirectory}", filesContent: null);
+                return (isSuccess: false, log: $"There is no *{fileExtension} files in: {SourceDirectory}", filesContent: null);
 
             SendFromDirMaxValue = filesInfo.Length;
             string[] filesContent = new string[filesInfo.Length];
@@ -695,7 +695,7 @@ namespace ActiveMQExplorer.ViewModels
 
                 if (result.isSuccess)
                 {
-                    MQModelsHandler.CurrentPublisherMQModel.Destination = _currentSendFromDirQueue;
+                    MQModelsHandler.CurrentPublisherMQModel.Destination = QueueTextSendFromDir;
                     MQModelsHandler.CurrentPublisherMQModel.Data = result.fileContent;
                     _mQPublisher.SetPublisherModel(MQModelsHandler.CurrentPublisherMQModel);
 

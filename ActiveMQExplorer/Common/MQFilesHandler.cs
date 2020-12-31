@@ -7,11 +7,11 @@ namespace ActiveMQExplorer.Common
     public class MQFilesHandler
     {
         public static string DumpDirectory { get; set; }
+        public static string FileExtention { get; set; }
         public static string SourceDirectory { get; set; }
         public static bool IsInDumpFilesMode { get; set; }
 
-
-        public static string SaveDumpFile(string fileName, string content)
+        public static string SaveDumpFile(string fileName, string content, string fileExtension)
         {
             if (string.IsNullOrWhiteSpace(fileName))
                 return "Null/Empty file name!";
@@ -29,7 +29,7 @@ namespace ActiveMQExplorer.Common
 
             try
             {
-                string targetFile = Path.Combine(DumpDirectory, fileName + ".txt");
+                string targetFile = Path.Combine(DumpDirectory, $"{fileName}.{fileExtension}");
 
                 FileInfo fi = new FileInfo(targetFile);
 
@@ -44,7 +44,7 @@ namespace ActiveMQExplorer.Common
                 return "Error while saving dump file: " + ex.Message;
             }
 
-            return $"Successfully saved file: {fileName}.txt at directory: {DumpDirectory}";
+            return $"Successfully saved file: {fileName}.{fileExtension} at directory: {DumpDirectory}";
         }
 
         public static (bool isSuccess, string log, string fileContent) ReadFile(FileInfo fileInfo)
@@ -74,5 +74,13 @@ namespace ActiveMQExplorer.Common
 
             return (isSuccess: true, log: $"Successfully loaded content of file: {fileInfo.FullName}", fileContent);
         }
+    }
+
+    public enum FileExtension
+    {
+        txt = 1,
+        xml = 2,
+        json = 3,
+        yaml = 4
     }
 }

@@ -5,6 +5,8 @@ using MQProviders.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Media;
 
@@ -147,6 +149,26 @@ namespace ActiveMQExplorer.ViewModels
             }
         }
 
+        public List<string> FilesExtensionList
+        {
+            get
+            {
+                return Enum.GetNames(typeof(FileExtension)).ToList();
+            }
+        }
+
+        private string _fileExtensionTxt;
+        public string FileExtensionTxt
+        {
+            get => _fileExtensionTxt;
+            set
+            {
+                _fileExtensionTxt = value.ToLower();
+                MQFilesHandler.FileExtention = _fileExtensionTxt;
+
+                NotifyOfPropertyChange();
+            }
+        }
 
         public SettingsWindowViewModel()
         {
@@ -174,9 +196,16 @@ namespace ActiveMQExplorer.ViewModels
 
             DumpFilesChk = Properties.Settings.Default.is_in_dump_mode;
             DumpDirectory = Properties.Settings.Default.dump_dir;
+            FileExtensionTxt = Properties.Settings.Default.file_extension;
+
+            if (string.IsNullOrWhiteSpace(FileExtensionTxt))
+            {
+                FileExtensionTxt = Enum.GetName(typeof(FileExtension), 2); // set to xml if empty
+            }
 
             MQFilesHandler.IsInDumpFilesMode = DumpFilesChk;
             MQFilesHandler.DumpDirectory = DumpDirectory;
+            MQFilesHandler.FileExtention = FileExtensionTxt;
         }
 
         public ICommand Connect
@@ -237,9 +266,11 @@ namespace ActiveMQExplorer.ViewModels
                 Properties.Settings.Default.publisher_mode = (int)MQModelsHandler.CurrentPublisherMQModel.PublisherMode;
                 Properties.Settings.Default.is_in_dump_mode = DumpFilesChk;
                 Properties.Settings.Default.dump_dir = DumpDirectory;
+                Properties.Settings.Default.file_extension = FileExtensionTxt;
 
                 MQFilesHandler.IsInDumpFilesMode = DumpFilesChk;
                 MQFilesHandler.DumpDirectory = DumpDirectory;
+                MQFilesHandler.FileExtention = FileExtensionTxt;
 
                 Properties.Settings.Default.Save();
                 Properties.Settings.Default.Reload();
@@ -272,6 +303,12 @@ namespace ActiveMQExplorer.ViewModels
 
             ConnectStatus = result;
             IsReadyToTryConnect = true;
+
+            Task.Factory.StartNew(() =>
+            {
+                Thread.Sleep(3000);
+                ConnectStatus = string.Empty;
+            });
         }
 
 
